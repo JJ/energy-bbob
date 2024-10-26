@@ -11,7 +11,7 @@ CXXFLAGS = -march=native -O3 -Wall
 all: $(EXE)
 
 clean: off
-	-rm -f $(EXE) $(LOG) *.tmp *.svg *~
+	-rm -f $(EXE) *.tmp *.svg *~
 
 off:
 	@sudo sysctl kernel.perf_event_paranoid=2 &> /dev/null
@@ -44,8 +44,8 @@ on:
 	done
 	make -s off
 
-%.svg: %.gp %.log
-	gnuplot $<
+%.svg: %.log | plot.gp
+	gnuplot < <(sed "s/^file=.*$$/file='$<'/" plot.gp)
 
 .PHONY: all clean off on
 .PRECIOUS: $(LOG)
