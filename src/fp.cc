@@ -1,26 +1,40 @@
+#include "coco.h"
+
 #include <array>
-#include <cmath>
 #include <functional>
 #include <iostream>
 #include <random>
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t INVIVIDUAL_SIZE = 10, POPULATION_SIZE = 10000;
-
-enum class functions { r, s };
-enum class types { f, d, l };
-
-std::mt19937_64 engine;
+const std::size_t INVIVIDUAL_SIZE = 1'000'000,
+                  POPULATION_SIZE = 1'000'000;
 
 template<typename T>
 using individual = std::array<T, INVIVIDUAL_SIZE>;
 template<typename T>
 using population = std::array<individual<T>, POPULATION_SIZE>;
 
+enum class functions : std::size_t {
+    bent_cigar = 0,
+    different_powers = 1,
+    discus = 2,
+    katsuura = 3,
+    rastrigin = 4,
+    rosenbrock = 5,
+    schaffers = 6,
+    schwefel = 7,
+    sharp_ridge = 8,
+    sphere = 9
+};
+
+enum class types { f, d, l };
+
+std::mt19937_64 engine;
+
 std::tuple<functions, types> parser(int argc, char **argv)
 {
-    functions function = functions::r;
+    functions function = functions::bent_cigar;
     int option = 0;
     int seed = std::random_device()();
     types type = types::f;
@@ -29,76 +43,124 @@ std::tuple<functions, types> parser(int argc, char **argv)
         switch (option)
         {
             case 'f':
-                function =
-                    (optarg[0] == 'r') ? functions::r : functions::s;
-                break;
-            case 'h':
-                std::cout << "usage: " << argv[0] << "\n"
-                          << "\t[-f (rastrigin|sphere)]\n"
-                          << "\t[-t (float|double|long double)]\n"
-                          << "\t[-s random seed\n";
-                exit(EXIT_SUCCESS);
-                break;
-            case 's': seed = atoi(optarg); break;
-            case 't':
-                switch (optarg[0])
                 {
-                    case 'f': type = types::f; break;
-                    case 'd': type = types::d; break;
-                    case 'l': type = types::l; break;
-                    default:
-                        std::cerr << argv[0] << ": unknown type "
-                                  << optarg[0] << '\n';
+                    std::string function_name(optarg);
+                    if (function_name == "bent cigar")
+                        function = functions::bent_cigar;
+                    else if (function_name == "different powers")
+                        function = functions::different_powers;
+                    else if (function_name == "discus")
+                        function = functions::discus;
+                    else if (function_name == "katsuura")
+                        function = functions::katsuura;
+                    else if (function_name == "rastrigin")
+                        function = functions::rastrigin;
+                    else if (function_name == "rosenbrock")
+                        function = functions::rosenbrock;
+                    else if (function_name == "schaffers")
+                        function = functions::schaffers;
+                    else if (function_name == "schwefel")
+                        function = functions::schwefel;
+                    else if (function_name == "sharp ridge")
+                        function = functions::sharp_ridge;
+                    else if (function_name == "sphere")
+                        function = functions::sphere;
+                    else
+                    {
+                        std::cerr << argv[0] << ": unknown function "
+                                  << function_name << '\n';
                         exit(EXIT_FAILURE);
+                    }
+                    break;
                 }
-                break;
+            case 'h':
+                {
+                    std::cout
+                        << "usage: " << argv[0] << "\n"
+                        << "\t[-f "
+                           "(bent cigar|different powers|discus|"
+                           "katsuura|rastigin|rosenbrock|schaffers|"
+                           "schwefel|sharp ridge|sphere)]\n"
+                        << "\t[-h show this help]\n"
+                        << "\t[-s random seed]\n"
+                        << "\t[-t (float|double|long double)]\n";
+                    exit(EXIT_SUCCESS);
+                }
+            case 's':
+                {
+                    seed = atoi(optarg);
+                    break;
+                }
+            case 't':
+                {
+                    switch (optarg[0])
+                    {
+                        case 'f': type = types::f; break;
+                        case 'd': type = types::d; break;
+                        case 'l': type = types::l; break;
+                        default:
+                            std::cerr << argv[0] << ": unknown type "
+                                      << optarg[0] << '\n';
+                            exit(EXIT_FAILURE);
+                    }
+                    break;
+                }
         }
 
+    // initilize the random number generator
     engine.seed(seed);
 
     return {function, type};
-}
-
-// https://github.com/numbbo/coco/blob/master/code-experiments/src/f_rastrigin.c
-template<typename Container>
-typename Container::value_type rastrigin(const Container &container)
-{
-    typename Container::value_type alpha = 10, n = container.size(),
-                                   sum1 = 0, sum2 = 0;
-    for (const auto &x : container)
-    {
-        sum1 += std::cos(2 * M_PI * x);
-        sum2 += x * x;
-    }
-    return alpha * (n - sum1) + sum2;
-}
-
-// https://github.com/numbbo/coco/blob/master/code-experiments/src/f_sphere.c
-template<typename Container>
-typename Container::value_type sphere(const Container &container)
-{
-    typename Container::value_type result = 0;
-    for (const auto &x : container)
-        result += x * x;
-    return result;
 }
 
 template<typename T> T work(functions function)
 {
     population<T> pop;
     std::uniform_real_distribution<T> uniform(-5.0, +5.0);
-    auto evaluator = (function == functions::r)
-                       ? rastrigin<individual<T>>
-                       : sphere<individual<T>>;
+    auto evaluator = bent_cigar_function<individual<T>>;
 
-    T best = std::numeric_limits<T>::min();
+    switch (function)
+    {
+        case functions::bent_cigar:
+            evaluator = bent_cigar_function<individual<T>>;
+            break;
+        case functions::different_powers:
+            evaluator = different_powers_function<individual<T>>;
+            break;
+        case functions::discus:
+            evaluator = discus_function<individual<T>>;
+            break;
+        case functions::katsuura:
+            evaluator = katsuura_function<individual<T>>;
+            break;
+        case functions::rastrigin:
+            evaluator = rastrigin_function<individual<T>>;
+            break;
+        case functions::rosenbrock:
+            evaluator = rosenbrock_function<individual<T>>;
+            break;
+        case functions::schaffers:
+            evaluator = schaffers_function<individual<T>>;
+            break;
+        case functions::schwefel:
+            evaluator = schwefel_function<individual<T>>;
+            break;
+        case functions::sharp_ridge:
+            evaluator = sharp_ridge_function<individual<T>>;
+            break;
+        case functions::sphere:
+            evaluator = sphere_function<individual<T>>;
+            break;
+    }
+
+    T max = std::numeric_limits<T>::min();
     for (auto &ind : pop)
     {
         for (auto &gene : ind)
             gene = uniform(engine);
-        best = std::max(best, evaluator(ind));
+        max = std::max(max, evaluator(ind));
     }
-    return best;
+    return max;
 }
 
 int main(int argc, char **argv)
