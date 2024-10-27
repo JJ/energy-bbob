@@ -45,9 +45,9 @@ std::tuple<functions, types> parser(int argc, char **argv)
             case 'f':
                 {
                     std::string function_name(optarg);
-                    if (function_name == "bent cigar")
+                    if (function_name == "bent_cigar")
                         function = functions::bent_cigar;
-                    else if (function_name == "different powers")
+                    else if (function_name == "different_powers")
                         function = functions::different_powers;
                     else if (function_name == "discus")
                         function = functions::discus;
@@ -61,7 +61,7 @@ std::tuple<functions, types> parser(int argc, char **argv)
                         function = functions::schaffers;
                     else if (function_name == "schwefel")
                         function = functions::schwefel;
-                    else if (function_name == "sharp ridge")
+                    else if (function_name == "sharp_ridge")
                         function = functions::sharp_ridge;
                     else if (function_name == "sphere")
                         function = functions::sphere;
@@ -78,12 +78,12 @@ std::tuple<functions, types> parser(int argc, char **argv)
                     std::cout
                         << "usage: " << argv[0] << "\n"
                         << "\t[-f "
-                           "(bent cigar|different powers|discus|"
+                           "(bent_cigar|different_powers|discus|"
                            "katsuura|rastigin|rosenbrock|schaffers|"
-                           "schwefel|sharp ridge|sphere)]\n"
+                           "schwefel|sharp_ridge|sphere)]\n"
                         << "\t[-h show this help]\n"
                         << "\t[-s random seed]\n"
-                        << "\t[-t (float|double|long double)]\n";
+                        << "\t[-t (float|double|long_double)]\n";
                     exit(EXIT_SUCCESS);
                 }
             case 's':

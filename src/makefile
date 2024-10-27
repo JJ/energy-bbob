@@ -1,14 +1,16 @@
 .ONESHELL:
 
 EXE = $(basename $(SRC))
-LOG = $(EXE:=.log)
-REP = 10
+LOG = $(wildcard *.log)
+REP = 100
 SRC = $(wildcard *.cc)
-SVG = $(EXE:=.svg)
+SVG = $(LOG:.log=.svg)
 
 CXXFLAGS = -march=native -O3 -Wall
 
-all: $(EXE)
+exe: $(EXE)
+
+all: $(SVG)
 
 clean: off
 	-rm -f $(EXE) *.tmp *.svg *~
@@ -25,20 +27,20 @@ on:
 	@LANG=C
 	FORMAT='%s;%s;%s;%s;%s;%s;%s\n'
 	printf $$FORMAT function type seed pkg cpu sleep diff | tee $@
-	for f in 'bent cigar' 'different powers' 'discus' 'katsuura' 'rastrigin' 'rosenbrock' 'schaffers' 'schwefel' 'sharp ridge' 'sphere'; do
-		for t in 'float' 'double' 'long double'; do
+	for f in bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere; do
+		for t in float double long_double; do
 			for ((s=0; s<$(REP); s++)); do
 				pkg=0.0
 				sleep=0.0
 				while [ $$(bc <<< "$$pkg <= $$sleep") -eq 1 ]; do
-					-perf stat -a -e power/energy-pkg/ 2> $<.tmp -- ./$< -f "$$f" -s $$s -t "$$t"
+					-perf stat -a -e power/energy-pkg/ 2> $<.tmp -- ./$< -f $$f -s $$s -t $$t
 					pkg=$$(sed -n 's/[[:space:]]*\([[:digit:].,]*\) Joules .*/\1/p' $<.tmp)
 					cpu=$$(grep seconds $<.tmp | tr -s ' ' | cut -d' ' -f2)
 					-perf stat -a -e power/energy-pkg/ 2> $<.tmp -- sleep $$cpu
 					sleep=$$(sed -n 's/[[:space:]]*\([[:digit:].,]*\) Joules .*/\1/p' $<.tmp)
 					diff=$$(bc -l <<< "$$pkg - $$sleep")
 				done
-				printf $$FORMAT "$$f" "$$t" $$s $$pkg $$cpu $$sleep $$diff | tee -a $@
+				printf $$FORMAT $$f $$t $$s $$pkg $$cpu $$sleep $$diff | tee -a $@
 			done
 		done
 	done

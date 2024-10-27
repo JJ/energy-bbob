@@ -2,17 +2,18 @@
 # plot.gp
 #-----------------------------------------------------------------------------
 
-functions='bent different discus katsuura rastrigin rosenbrock schaffers schwefel sharp sphere'
-types='float double long'
+functions='bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere'
+types='float double long_double'
 
 file='fp.log'
 stem=file[:strlen(file)-4]
 
 set datafile separator ';'
+set encoding utf8
 set key autotitle columnhead
 set terminal svg noenhanced
 set xtics rotate by 33 right scale 0
-set ylabel 'power/energy-pkg/ (Joules)'
+set ylabel 'power/energy-pkg (J)'
 
 #-----------------------------------------------------------------------------
 # statistics
@@ -29,10 +30,10 @@ do for [type in types] {
 }
 
 #-----------------------------------------------------------------------------
-# plotting all together
+# all functions
 #-----------------------------------------------------------------------------
 
-set output stem.'-all.svg'
+set output stem.'-functions.svg'
 plot file using (1):(column('diff')):(0.75):(column('function')) with boxplot linecolor variable notitle, diff_mean w l lc 0 lt 1 lw 2 t 'mean', diff_median w l lc 0 lt 0 lw 2 t 'median'
 
 #-----------------------------------------------------------------------------
@@ -50,5 +51,5 @@ do for [function in functions] {
 
 do for [type in types] {
     set output stem.'-'.type.'.svg'
-    plot '<(head -n1 '.file.'; grep ";'.type.'" '.file.')' using (1):(column('diff')):(0.75):(column('function')) with boxplot linecolor variable notitle, value('diff_'.type.'_mean') w l lc 0 lt 1 lw 2 t 'mean', value('diff_'.type.'_median') w l lc 0 lt 0 lw 2 t 'median'
+    plot '<(head -n1 '.file.'; grep \;'.type.' '.file.')' using (1):(column('diff')):(0.75):(column('function')) with boxplot linecolor variable notitle, value('diff_'.type.'_mean') w l lc 0 lt 1 lw 2 t 'mean', value('diff_'.type.'_median') w l lc 0 lt 0 lw 2 t 'median'
 }
