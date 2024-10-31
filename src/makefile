@@ -1,5 +1,7 @@
 .ONESHELL:
 
+# Use make CXX=/opt/homebrew/bin/g++-14 on the Mac with homebrew
+
 EXE = $(basename $(SRC))
 LOG = $(wildcard *.log)
 REP = 100
