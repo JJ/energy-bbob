@@ -7,11 +7,10 @@
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t INVIVIDUAL_SIZE = 1'000'000,
-                  POPULATION_SIZE = 1'000'000;
+const std::size_t INVIVIDUAL_SIZE = 1'000'000, POPULATION_SIZE = 1'000'000;
 
-template<typename T>
-using individual = std::array<T, INVIVIDUAL_SIZE>;
+template<typename T> using individual = std::array<T, INVIVIDUAL_SIZE>;
+
 template<typename T>
 using population = std::array<individual<T>, POPULATION_SIZE>;
 
@@ -25,19 +24,20 @@ enum class functions : std::size_t {
     schaffers = 6,
     schwefel = 7,
     sharp_ridge = 8,
-    sphere = 9
+    sphere = 9,
+    none = 10
 };
 
-enum class types { f, d, l };
+enum class types { f, d, l, none };
 
 std::mt19937_64 engine;
 
 std::tuple<functions, types> parser(int argc, char **argv)
 {
-    functions function = functions::bent_cigar;
+    functions function = functions::none;
     int option = 0;
     int seed = std::random_device()();
-    types type = types::f;
+    types type = types::none;
 
     while ((option = getopt(argc, argv, "f:hs:t:")) != -1)
         switch (option)
@@ -75,15 +75,14 @@ std::tuple<functions, types> parser(int argc, char **argv)
                 }
             case 'h':
                 {
-                    std::cout
-                        << "usage: " << argv[0] << "\n"
-                        << "\t[-f "
-                           "(bent_cigar|different_powers|discus|"
-                           "katsuura|rastigin|rosenbrock|schaffers|"
-                           "schwefel|sharp_ridge|sphere)]\n"
-                        << "\t[-h show this help]\n"
-                        << "\t[-s random seed]\n"
-                        << "\t[-t (float|double|long_double)]\n";
+                    std::cout << "usage: " << argv[0] << "\n"
+                              << "\t -f "
+                                 "(bent_cigar|different_powers|discus|"
+                                 "katsuura|rastigin|rosenbrock|schaffers|"
+                                 "schwefel|sharp_ridge|sphere)\n"
+                              << "\t[-h show this help]\n"
+                              << "\t[-s random seed]\n"
+                              << "\t -t (float|double|long_double)\n";
                     exit(EXIT_SUCCESS);
                 }
             case 's':
@@ -106,6 +105,18 @@ std::tuple<functions, types> parser(int argc, char **argv)
                     break;
                 }
         }
+
+    if (function == functions::none)
+    {
+        std::cerr << argv[0] << ": required parameter function\n";
+        exit(EXIT_FAILURE);
+    }
+
+    if (type == types::none)
+    {
+        std::cerr << argv[0] << ": required parameter type\n";
+        exit(EXIT_FAILURE);
+    }
 
     // initilize the random number generator
     engine.seed(seed);
@@ -151,6 +162,7 @@ template<typename T> T work(functions function)
         case functions::sphere:
             evaluator = sphere_function<individual<T>>;
             break;
+        default: std::cerr << "unknown function\n"; exit(EXIT_FAILURE);
     }
 
     T max = std::numeric_limits<T>::min();
@@ -172,5 +184,6 @@ int main(int argc, char **argv)
         case types::f: return work<float>(function); break;
         case types::d: return work<double>(function); break;
         case types::l: return work<long double>(function); break;
+        default: std::cerr << "unknown type\n"; exit(EXIT_FAILURE);
     }
 }
