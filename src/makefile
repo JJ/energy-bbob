@@ -52,7 +52,7 @@ svg: $(SVG)
 #------------------------------------------------------------------------------
 
 %.log: fp
-	@make -s start
+	@make -s start &> /dev/null
 	LANG=C
 	FORMAT='%s;%s;%s;%s;%s;%s;%s\n'
 	printf $$FORMAT function type seed pkg cpu sleep diff | tee $@
@@ -74,7 +74,7 @@ svg: $(SVG)
 		done
 	done
 	chmod -w $@
-	make -s stop
+	make -s stop &> /dev/null
 
 %.svg: plot.gp
 	gnuplot < <(sed "s/^file=.*$$/file='$*.log'/" $<)
