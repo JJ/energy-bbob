@@ -8,7 +8,7 @@
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t GENERATIONS = 100, INVIVIDUAL_SIZE = 100,
+const std::size_t GENERATIONS = 1000, INVIVIDUAL_SIZE = 100,
                   POPULATION_SIZE = 1000;
 
 template<typename T>
