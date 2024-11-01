@@ -20,7 +20,7 @@ ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
 endif
 
-CXXFLAGS = -march=native -O3 -Wall
+CXXFLAGS = -march=native -O3 -std=c++23 -Wall
 
 #------------------------------------------------------------------------------
 

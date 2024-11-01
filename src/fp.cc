@@ -4,12 +4,15 @@
 #include <functional>
 #include <iostream>
 #include <random>
+#include <ranges>
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t INVIVIDUAL_SIZE = 1'000'000, POPULATION_SIZE = 1'000'000;
+const std::size_t GENERATIONS = 100, INVIVIDUAL_SIZE = 100,
+                  POPULATION_SIZE = 1000;
 
-template<typename T> using individual = std::array<T, INVIVIDUAL_SIZE>;
+template<typename T>
+using individual = std::array<T, INVIVIDUAL_SIZE>;
 
 template<typename T>
 using population = std::array<individual<T>, POPULATION_SIZE>;
@@ -75,14 +78,15 @@ std::tuple<functions, types> parser(int argc, char **argv)
                 }
             case 'h':
                 {
-                    std::cout << "usage: " << argv[0] << "\n"
-                              << "\t -f "
-                                 "(bent_cigar|different_powers|discus|"
-                                 "katsuura|rastigin|rosenbrock|schaffers|"
-                                 "schwefel|sharp_ridge|sphere)\n"
-                              << "\t[-h show this help]\n"
-                              << "\t[-s random seed]\n"
-                              << "\t -t (float|double|long_double)\n";
+                    std::cout
+                        << "usage: " << argv[0] << "\n"
+                        << "\t -f "
+                           "(bent_cigar|different_powers|discus|"
+                           "katsuura|rastigin|rosenbrock|schaffers|"
+                           "schwefel|sharp_ridge|sphere)\n"
+                        << "\t[-h show this help]\n"
+                        << "\t[-s random seed]\n"
+                        << "\t -t (float|double|long_double)\n";
                     exit(EXIT_SUCCESS);
                 }
             case 's':
@@ -127,8 +131,13 @@ std::tuple<functions, types> parser(int argc, char **argv)
 template<typename T> T work(functions function)
 {
     population<T> pop;
-    std::uniform_real_distribution<T> uniform(-5.0, +5.0);
     auto evaluator = bent_cigar_function<individual<T>>;
+    T max = std::numeric_limits<T>::min();
+    std::uniform_int_distribution<std::size_t> uniform_position(
+        0z, pop.size());
+    auto rng_pos = std::bind(uniform_position, std::ref(engine));
+    std::uniform_real_distribution<T> domain(-5.0, +5.0);
+    auto rng_domain = std::bind(domain, std::ref(engine));
 
     switch (function)
     {
@@ -147,9 +156,6 @@ template<typename T> T work(functions function)
         case functions::rastrigin:
             evaluator = rastrigin_function<individual<T>>;
             break;
-        case functions::rosenbrock:
-            evaluator = rosenbrock_function<individual<T>>;
-            break;
         case functions::schaffers:
             evaluator = schaffers_function<individual<T>>;
             break;
@@ -162,15 +168,34 @@ template<typename T> T work(functions function)
         case functions::sphere:
             evaluator = sphere_function<individual<T>>;
             break;
-        default: std::cerr << "unknown function\n"; exit(EXIT_FAILURE);
+        default:
+            std::cerr << "unknown function\n";
+            exit(EXIT_FAILURE);
     }
 
-    T max = std::numeric_limits<T>::min();
+    // initialize population
     for (auto &ind : pop)
-    {
         for (auto &gene : ind)
-            gene = uniform(engine);
-        max = std::max(max, evaluator(ind));
+            gene = rng_domain();
+
+    // run the genetic algorithm
+    for (std::size_t g = 0; g < GENERATIONS; ++g)
+    {
+        for (std::size_t i = 0; i < pop.size(); i += 2)
+        {
+            // mutation
+            pop[i + 0][rng_pos()] = rng_domain();
+            pop[i + 1][rng_pos()] = rng_domain();
+
+            // crossover
+            std::swap_ranges(pop[i + 0].begin(),
+                             pop[i + 0].begin() + rng_pos(),
+                             pop[i + 1].begin());
+
+            // evaluation
+            max = std::max(max, evaluator(pop[i + 0]));
+            max = std::max(max, evaluator(pop[i + 1]));
+        }
     }
     return max;
 }
