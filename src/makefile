@@ -27,7 +27,7 @@ CXXFLAGS = -march=native -O3 -Wall
 all: svg
 
 clean: stop
-	-rm -f $(EXE) *.tmp *.svg *~
+	-rm -f $(EXE) *.svg *.tmp *~
 
 exe: $(EXE)
 
@@ -36,12 +36,16 @@ run: $(NEW)
 start:
 	@sudo sysctl kernel.perf_event_paranoid=-1 &> /dev/null
 	sudo cpupower frequency-set --governor performance &> /dev/null
-	sudo sh -c 'echo 0 > /sys/devices/system/cpu/cpufreq/boost'
+	if [ -e /sys/devices/system/cpu/cpufreq/boost ]; then
+		echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost
+	fi
 
 stop:
 	@sudo sysctl kernel.perf_event_paranoid=2 &> /dev/null
 	sudo cpupower frequency-set --governor powersave &> /dev/null
-	sudo sh -c 'echo 1 > /sys/devices/system/cpu/cpufreq/boost'
+	if [ -e /sys/devices/system/cpu/cpufreq/boost ]; then
+		echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost
+	fi
 
 svg: $(SVG)
 
