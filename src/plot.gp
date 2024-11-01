@@ -58,7 +58,6 @@ do for [type in types] {
 # multiplot by type
 #-----------------------------------------------------------------------------
 
-set grid
 set output stem.'-types.svg'
 set xtics rotate by 45 right scale 0
 set yrange[diff_min:diff_max]
