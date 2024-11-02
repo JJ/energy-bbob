@@ -127,7 +127,7 @@ template<typename T> T work(functions function)
     auto evaluator = bent_cigar_function<individual<T>>;
     T max = std::numeric_limits<T>::min();
     std::uniform_int_distribution<std::size_t> uniform_position(
-        0z, pop.size());
+        0, pop.size() - 1);
     auto rng_pos = std::bind(uniform_position, std::ref(engine));
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
     auto rng_domain = std::bind(domain, std::ref(engine));
