@@ -108,6 +108,11 @@ std::tuple<functions, types> parser(int argc, char **argv)
                     }
                     break;
                 }
+            default:
+                {
+                    std::cerr << argv[0] << ": unknown option\n";
+                    exit(EXIT_FAILURE);
+                }
         }
 
     if (function == functions::none)
