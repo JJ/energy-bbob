@@ -123,14 +123,8 @@ std::tuple<functions, types> parser(int argc, char **argv)
 
 template<typename T> T work(functions function)
 {
-    population<T> pop;
     auto evaluator = bent_cigar_function<individual<T>>;
-    T max = std::numeric_limits<T>::min();
-    std::uniform_int_distribution<std::size_t> uniform_position(
-        std::size_t(0), pop.size() - 1);
-    auto rng_pos = std::bind(uniform_position, std::ref(engine));
-    std::uniform_real_distribution<T> domain(-5.0, +5.0);
-    auto rng_domain = std::bind(domain, std::ref(engine));
+
 
     switch (function)
     {
@@ -167,29 +161,17 @@ template<typename T> T work(functions function)
     }
 
     // initialize population
+    population<T> pop;
+    std::uniform_real_distribution<T> domain(-5.0, +5.0);
+    auto rng_domain = std::bind(domain, std::ref(engine));
     for (auto &ind : pop)
         for (auto &gene : ind)
             gene = rng_domain();
 
-    // run the genetic algorithm
-    for (std::size_t g = 0; g < GENERATIONS; ++g)
-    {
-        for (std::size_t i = 0; i < pop.size(); i += 2)
-        {
-            // mutation
-            pop[i + 0][rng_pos()] = rng_domain();
-            pop[i + 1][rng_pos()] = rng_domain();
-
-            // crossover
-            std::swap_ranges(pop[i + 0].begin(),
-                             pop[i + 0].begin() + rng_pos(),
-                             pop[i + 1].begin());
-
-            // evaluation
-            max = std::max(max, evaluator(pop[i + 0]));
-            max = std::max(max, evaluator(pop[i + 1]));
-        }
-    }
+    // evaluate population
+    T max = std::numeric_limits<T>::min();
+    for (auto &ind : pop)
+        max = std::max(max, evaluator(ind));
     return max;
 }
 
