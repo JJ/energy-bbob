@@ -15,12 +15,16 @@ SVG = $(LOG:.log=.svg)
 
 #------------------------------------------------------------------------------
 
+CXXSTD = c++23
 # Use make CXX=/opt/homebrew/bin/g++-14 on the Mac with homebrew
 ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
+else ifneq ("$(wildcard /usr/bin/g++-10)","")
+	CXX = g++-10
+	CXXSTD = c++2a
 endif
 
-CXXFLAGS = -march=native -O3 -std=c++23 -Wall
+CXXFLAGS = -march=native -O3 -std=$(CXXSTD) -Wall
 
 #------------------------------------------------------------------------------
 

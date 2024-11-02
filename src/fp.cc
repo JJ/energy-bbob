@@ -39,10 +39,9 @@ std::tuple<functions, types> parser(int argc, char **argv)
 {
     functions function = functions::none;
     int option = 0;
-    int seed = std::random_device()();
     types type = types::none;
 
-    while ((option = getopt(argc, argv, "f:hs:t:")) != -1)
+    while ((option = getopt(argc, argv, "f:ht:")) != -1)
         switch (option)
         {
             case 'f':
@@ -85,14 +84,8 @@ std::tuple<functions, types> parser(int argc, char **argv)
                            "katsuura|rastigin|rosenbrock|schaffers|"
                            "schwefel|sharp_ridge|sphere)\n"
                         << "\t[-h show this help]\n"
-                        << "\t[-s random seed]\n"
                         << "\t -t (float|double|long_double)\n";
                     exit(EXIT_SUCCESS);
-                }
-            case 's':
-                {
-                    seed = atoi(optarg);
-                    break;
                 }
             case 't':
                 {
@@ -122,7 +115,7 @@ std::tuple<functions, types> parser(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    // initilize the random number generator
+    int seed = std::random_device()();
     engine.seed(seed);
 
     return {function, type};
