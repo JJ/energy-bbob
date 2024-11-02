@@ -65,7 +65,7 @@ svg: $(SVG)
 				pkg=0.0
 				sleep=0.0
 				while [ $$(bc <<< "$$pkg <= $$sleep") -eq 1 ]; do
-					-perf stat -a -e power/energy-pkg/ 2> $*.tmp -- ./fp -f $$f -s $$s -t $$t
+					-perf stat -a -e power/energy-pkg/ 2> $*.tmp -- ./$< -f $$f -s $$s -t $$t
 					pkg=$$(sed -n 's/[[:space:]]*\([[:digit:].,]*\) Joules .*/\1/p' $*.tmp)
 					cpu=$$(grep seconds $*.tmp | tr -s ' ' | cut -d' ' -f2)
 					-perf stat -a -e power/energy-pkg/ 2> $*.tmp -- sleep $$cpu
