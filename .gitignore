@@ -33,3 +33,6 @@
 
 # Latex
 auto/
+
+# VScode
+.vscode/
