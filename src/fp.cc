@@ -8,8 +8,7 @@
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t GENERATIONS = 1000, INVIVIDUAL_SIZE = 100,
-                  POPULATION_SIZE = 1000;
+const std::size_t INVIVIDUAL_SIZE = 100, POPULATION_SIZE = 1000;
 
 template<typename T>
 using individual = std::array<T, INVIVIDUAL_SIZE>;
@@ -124,7 +123,6 @@ std::tuple<functions, types> parser(int argc, char **argv)
 template<typename T> T work(functions function)
 {
     auto evaluator = bent_cigar_function<individual<T>>;
-
 
     switch (function)
     {
