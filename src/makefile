@@ -6,6 +6,7 @@
 
 #------------------------------------------------------------------------------
 
+BEN = fp
 EXE = $(basename $(SRC))
 FUN = bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere
 LOG = $(wildcard *.log)
@@ -54,7 +55,7 @@ svg: $(SVG)
 
 #------------------------------------------------------------------------------
 
-%.log: fp
+%.log: $(BEN)
 	@make -s start &> /dev/null
 	LANG=C
 	FORMAT='%s;%s;%s;%s;%s;%s;%s\n'

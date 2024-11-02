@@ -42,7 +42,7 @@ std::tuple<functions, types> parser(int argc, char **argv)
     int seed = std::random_device()();
     types type = types::none;
 
-    while ((option = getopt(argc, argv, "f:ht:")) != -1)
+    while ((option = getopt(argc, argv, "f:hs:t:")) != -1)
         switch (option)
         {
             case 'f':
