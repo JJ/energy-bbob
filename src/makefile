@@ -23,7 +23,7 @@ ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
 endif
 
-CXXFLAGS = -march=native -O3 -Wall
+CXXFLAGS = -flto -march=native -O3 -Wall
 
 #------------------------------------------------------------------------------
 
@@ -79,6 +79,11 @@ svg: $(SVG)
 	chmod -w $@
 	rm -f $*.tmp
 	make -s stop &> /dev/null
+
+%.svg: plot.gp
+	gnuplot < <(sed "s/^file=.*$$/file='$*.log'/" $<)
+
+#------------------------------------------------------------------------------
 
 .INTERMEDIATE: $(NEW) $(TMP)
 .PHONY: all clean exe new start stop svg

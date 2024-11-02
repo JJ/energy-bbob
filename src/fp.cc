@@ -1,5 +1,6 @@
 #include "coco.h"
 
+#include <algorithm>
 #include <array>
 #include <functional>
 #include <iostream>
@@ -38,6 +39,7 @@ std::tuple<functions, types> parser(int argc, char **argv)
 {
     functions function = functions::none;
     int option = 0;
+    int seed = std::random_device()();
     types type = types::none;
 
     while ((option = getopt(argc, argv, "f:ht:")) != -1)
@@ -86,6 +88,11 @@ std::tuple<functions, types> parser(int argc, char **argv)
                         << "\t -t (float|double|long_double)\n";
                     exit(EXIT_SUCCESS);
                 }
+            case 's':
+                {
+                    seed = atoi(optarg);
+                    break;
+                }
             case 't':
                 {
                     switch (optarg[0])
@@ -114,7 +121,6 @@ std::tuple<functions, types> parser(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    int seed = std::random_device()();
     engine.seed(seed);
 
     return {function, type};
@@ -163,8 +169,7 @@ template<typename T> T work(functions function)
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
     auto rng_domain = std::bind(domain, std::ref(engine));
     for (auto &ind : pop)
-        for (auto &gene : ind)
-            gene = rng_domain();
+        std::generate(ind.begin(), ind.end(), rng_domain);
 
     // evaluate population
     T max = std::numeric_limits<T>::min();
