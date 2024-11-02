@@ -9,10 +9,10 @@
 #include <tuple>
 #include <unistd.h>
 
-const std::size_t INVIVIDUAL_SIZE = 100, POPULATION_SIZE = 1000;
+const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 1'000'000;
 
 template<typename T>
-using individual = std::array<T, INVIVIDUAL_SIZE>;
+using individual = std::array<T, INDIVIDUAL_SIZE>;
 
 template<typename T>
 using population = std::array<individual<T>, POPULATION_SIZE>;
@@ -85,6 +85,7 @@ std::tuple<functions, types> parser(int argc, char **argv)
                            "katsuura|rastigin|rosenbrock|schaffers|"
                            "schwefel|sharp_ridge|sphere)\n"
                         << "\t[-h show this help]\n"
+                        << "\t[-s random seed]\n"
                         << "\t -t (float|double|long_double)\n";
                     exit(EXIT_SUCCESS);
                 }
