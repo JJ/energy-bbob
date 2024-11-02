@@ -7,11 +7,13 @@
 #------------------------------------------------------------------------------
 
 EXE = $(basename $(SRC))
+FUN = bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere
 LOG = $(wildcard *.log)
 NEW != echo $${HOSTNAME%%.*}-$$(date '+%s').log
 REP = 100
 SRC = $(wildcard *.cc)
 SVG = $(LOG:.log=.svg)
+TMP = $(wildcard *.tmp)
 
 #------------------------------------------------------------------------------
 
@@ -19,37 +21,34 @@ CXXSTD = c++23
 # Use make CXX=/opt/homebrew/bin/g++-14 on the Mac with homebrew
 ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
-else ifneq ("$(wildcard /usr/bin/g++-10)","")
-	CXX = g++-10
-	CXXSTD = c++2a
 endif
 
-CXXFLAGS = -march=native -O3 -std=$(CXXSTD) -Wall
+CXXFLAGS = -march=native -O3 -Wall
 
 #------------------------------------------------------------------------------
 
 all: svg
 
 clean: stop
-	-rm -f $(EXE) *.svg *.tmp *~
+	-rm -f $(EXE) $(TMP) *.svg nohup.out core.* *~
 
 exe: $(EXE)
 
-run: $(NEW)
+new: $(NEW)
 
 start:
 	@sudo sysctl kernel.perf_event_paranoid=-1 &> /dev/null
 	sudo cpupower frequency-set --governor performance &> /dev/null
 	if [ -e /sys/devices/system/cpu/cpufreq/boost ]; then
 		echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost
-	fi
+	fi &> /dev/null
 
 stop:
 	@sudo sysctl kernel.perf_event_paranoid=2 &> /dev/null
 	sudo cpupower frequency-set --governor powersave &> /dev/null
 	if [ -e /sys/devices/system/cpu/cpufreq/boost ]; then
 		echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost
-	fi
+	fi &> /dev/null
 
 svg: $(SVG)
 
@@ -60,7 +59,7 @@ svg: $(SVG)
 	LANG=C
 	FORMAT='%s;%s;%s;%s;%s;%s;%s\n'
 	printf $$FORMAT function type seed pkg cpu sleep diff | tee $@
-	for f in bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere; do
+	for f in $(FUN); do
 		for t in float double long_double; do
 			for ((s=0; s<$(REP); s++)); do
 				pkg=0.0
@@ -78,14 +77,11 @@ svg: $(SVG)
 		done
 	done
 	chmod -w $@
+	rm -f $*.tmp
 	make -s stop &> /dev/null
 
-%.svg: plot.gp
-	gnuplot < <(sed "s/^file=.*$$/file='$*.log'/" $<)
-
-#------------------------------------------------------------------------------
-
-.PHONY: all clean exe run start stop svg
+.INTERMEDIATE: $(NEW) $(TMP)
+.PHONY: all clean exe new start stop svg
 .PRECIOUS: $(LOG)
 
 #------------------------------------------------------------------------------
