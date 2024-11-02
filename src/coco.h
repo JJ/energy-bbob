@@ -2,14 +2,15 @@
 // https://github.com/numbbo/coco/blob/master/code-experiments/src/
 
 #include <cmath>
+#include <stdexcept>
 
 template<typename Container,
          typename T = typename Container::value_type>
 T bent_cigar_function(const Container &x)
 {
-    static_assert(
-        x.size() > 0,
-        "Bent Cigar function requires at least 1 variables");
+    if (x.size() == 0) {
+        throw std::invalid_argument("Bent Cigar function requires at least 1 variable");
+    }
     T result = x[0] * x[0];
     for (std::size_t i = 1; i < x.size(); ++i)
         result += 1.0e6 * x[i] * x[i];
@@ -33,8 +34,9 @@ template<typename Container,
          typename T = typename Container::value_type>
 T discus_function(const Container &x)
 {
-    static_assert(x.size() > 0,
-                  "Discus function requires at least 2 variables");
+    if (x.size() <= 1) {
+        throw std::invalid_argument("Discus function requires at least 2 variable");
+    }
     T result = 1.0e6 * x[0] * x[0];
     for (std::size_t i = 1; i < x.size(); ++i)
         result += x[i] * x[i];
@@ -78,9 +80,9 @@ template<typename Container,
          typename T = typename Container::value_type>
 T rosenbrock_function(const Container &x)
 {
-    static_assert(
-        x.size() > 1,
-        "Rosenbrock function requires at least 2 variables");
+    if ( x.size() <= 1) {
+        throw std::invalid_argument("Rosenbrock function requires at least 2 variables");
+    }
     T s1 = 0.0, s2 = 0.0;
     for (std::size_t i = 0; i < x.size() - 1; ++i)
     {
@@ -96,8 +98,9 @@ template<typename Container,
          typename T = typename Container::value_type>
 T schaffers_function(const Container &x)
 {
-    static_assert(x.size() > 1,
-                  "Discus function requires at least 2 variables");
+    if (x.size() <= 1) {
+        throw std::invalid_argument("Discus function requires at least 2 variables");
+    }
     T result = 0.0;
     for (std::size_t i = 0; i < x.size() - 1; ++i)
     {
@@ -137,10 +140,9 @@ template<typename Container,
          typename T = typename Container::value_type>
 T sharp_ridge_function(const Container &x)
 {
-    static_assert(
-        x.size() > 1,
-        "Sharp Ridge function requires at least 2 variables");
-
+    if( x.size() <= 1 ) {
+        throw std::invalid_argument( "Sharp Ridge function requires at least 2 variables");
+    }
     const T d_vars_40 = x.size() <= 40 ? 1.0 : x.size() / 40.0;
     const size_t vars_40 = std::ceil(d_vars_40);
     T result = 0.0;
