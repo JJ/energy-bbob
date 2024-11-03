@@ -191,7 +191,7 @@ template<typename T> T work(functions function)
 
 //-------------------------------------------------------------------
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     auto [function, type] = parser(argc, argv);
 
