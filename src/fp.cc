@@ -42,7 +42,7 @@ parser(int argc, char **argv)
     std::size_t individual_size = 128, population_size = POPULATION_SIZE;
     functions function = functions::none;
     int option = 0, seed = std::random_device()();
-    types type = types::none;
+    types type = types::f;
     std::string_view function_name;
 
     while ((option = getopt(argc, argv, "f:i:hp:s:t:")) != -1)
