@@ -8,10 +8,12 @@
 
 BEN = fp
 EXE = $(basename $(SRC))
-FUN = bent_cigar different_powers discus katsuura rastrigin rosenbrock schaffers schwefel sharp_ridge sphere
+FUN = bent_cigar different_powers discus katsuura none rastrigin rosenbrock schaffers schwefel sharp_ridge sphere
+LEN = 128 256 512
 LOG = $(wildcard *.log)
 NEW != echo $${HOSTNAME%%.*}-$$(date '+%s').log
-REP = 100
+POP = 40000
+REP = 13
 SRC = $(wildcard *.cc)
 SVG = $(LOG:.log=.svg)
 TMP = $(wildcard *.tmp)
