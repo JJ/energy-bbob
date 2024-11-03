@@ -79,8 +79,8 @@ parser(int argc, char **argv)
                        "katsuura|none|rastigin|rosenbrock|schaffers|"
                        "schwefel|sharp_ridge|sphere) (required)\n"
                     << "\t-h show this help             (optional)\n"
-                    << "\t-i individual size            (required)\n"
-                    << "\t-p population size            (required)\n"
+                    << "\t-i individual size            (optional)\n"
+                    << "\t-p population size            (optional)\n"
                     << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
@@ -100,20 +100,6 @@ parser(int argc, char **argv)
                 }
                 break;
         }
-
-    if (individual_size == 0)
-    {
-        std::cerr << argv[0]
-                  << ": individual size parameter required!\n";
-        exit(EXIT_FAILURE);
-    }
-
-    if (population_size == 0)
-    {
-        std::cerr << argv[0]
-                  << ": population size parameter required!\n";
-        exit(EXIT_FAILURE);
-    }
 
     if (type == types::none)
     {
