@@ -143,7 +143,10 @@ parser(int argc, char **argv)
     return {
         function, individual_size, init_only, population_size, type};
 }
- Refactor to use AVX #20
+
+//-------------------------------------------------------------------
+
+template<typename T>
 T work(functions function,
        std::size_t individual_size,
        bool init_only,
