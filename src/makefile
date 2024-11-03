@@ -31,7 +31,7 @@ CXXFLAGS = -flto -march=native -mavx -std=$(CXXSTD) -O3 -Wall
 
 #------------------------------------------------------------------------------
 
-all: svg
+all: exe
 
 clean: stop
 	-rm -f $(EXE) $(TMP) *.svg nohup.out core.* *~
