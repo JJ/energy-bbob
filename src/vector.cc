@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <vector>
 
-const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 40'000;
+const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 400'000;
 
 template<typename T> using individual = std::vector<T>;
 
