@@ -25,7 +25,7 @@ else ifneq ("$(wildcard /usr/bin/g++-10)","")
 	CXX = g++-10
 endif
 
-CXXFLAGS = -flto -march=native-O3 -Wall
+CXXFLAGS = -flto -march=native -O3 -Wall
 
 #------------------------------------------------------------------------------
 
