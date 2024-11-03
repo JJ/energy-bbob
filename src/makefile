@@ -18,16 +18,14 @@ TMP = $(wildcard *.tmp)
 
 #------------------------------------------------------------------------------
 
-CXXSTD = c++23
 # Use make CXX=/opt/homebrew/bin/g++-14 on the Mac with homebrew
 ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
 else ifneq ("$(wildcard /usr/bin/g++-10)","")
 	CXX = g++-10
-	CXXSTD = c++2a
 endif
 
-CXXFLAGS = -flto -march=native -mavx -std=$(CXXSTD) -O3 -Wall
+CXXFLAGS = -flto -march=native-O3 -Wall
 
 #------------------------------------------------------------------------------
 
