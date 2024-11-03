@@ -70,12 +70,6 @@ parser(int argc, char **argv)
                     function = functions::sharp_ridge;
                 else if (function_name == "sphere")
                     function = functions::sphere;
-                else
-                {
-                    std::cerr << argv[0] << ": unknown function "
-                              << function_name << '\n';
-                    exit(EXIT_FAILURE);
-                }
                 break;
             case 'h':
                 std::cout
