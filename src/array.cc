@@ -173,9 +173,10 @@ template<typename T> T work(functions function)
     // initialize population
     population<T> pop;
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
-    auto rng_domain = std::bind(domain, std::ref(engine));
+    auto rng_domain = std::bind(domain, engine);
     for (auto &ind : pop)
-        std::generate(ind.begin(), ind.end(), rng_domain);
+        for (auto &gene : ind)
+            gene = rng_domain();
 
     // evaluate population
     T max = std::numeric_limits<T>::min();

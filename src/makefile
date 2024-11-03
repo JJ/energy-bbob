@@ -27,8 +27,6 @@ else ifneq ("$(wildcard /usr/bin/g++-10)","")
 	CXXSTD = c++2a
 endif
 
-CXXFLAGS = -march=native -O3 -std=$(CXXSTD) -Wall
-
 #------------------------------------------------------------------------------
 
 all: svg

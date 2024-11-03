@@ -1,21 +1,19 @@
 #include "coco.h"
 
 #include <algorithm>
-#include <array>
 #include <functional>
 #include <iostream>
 #include <random>
 #include <ranges>
 #include <tuple>
 #include <unistd.h>
+#include <vector>
 
 const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 1'000'000;
 
-template<typename T>
-using individual = std::array<T, INDIVIDUAL_SIZE>;
+template<typename T> using individual = std::vector<T>;
 
-template<typename T>
-using population = std::array<individual<T>, POPULATION_SIZE>;
+template<typename T> using population = std::vector<individual<T>>;
 
 enum class functions : std::size_t {
     bent_cigar = 0,
@@ -171,11 +169,13 @@ template<typename T> T work(functions function)
     }
 
     // initialize population
-    population<T> pop;
+    population<T> pop(POPULATION_SIZE,
+                      individual<T>(INDIVIDUAL_SIZE));
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
     auto rng_domain = std::bind(domain, std::ref(engine));
     for (auto &ind : pop)
-        std::generate(ind.begin(), ind.end(), rng_domain);
+        for (auto &gene : ind)
+            gene = rng_domain();
 
     // evaluate population
     T max = std::numeric_limits<T>::min();
