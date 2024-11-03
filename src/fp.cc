@@ -8,7 +8,6 @@
 #include <functional>
 #include <iostream>
 #include <random>
-#include <ranges>
 #include <tuple>
 #include <unistd.h>
 #include <vector>
@@ -144,10 +143,7 @@ parser(int argc, char **argv)
     return {
         function, individual_size, init_only, population_size, type};
 }
-
-//-------------------------------------------------------------------
-
-template<typename T>
+ Refactor to use AVX #20
 T work(functions function,
        std::size_t individual_size,
        bool init_only,
