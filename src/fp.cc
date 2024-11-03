@@ -36,17 +36,16 @@ std::mt19937_64 engine;
 
 //-------------------------------------------------------------------
 
-std::tuple<functions, std::size_t, bool, std::size_t, types>
+std::tuple<functions, std::size_t, std::size_t, types>
 parser(int argc, char **argv)
 {
     std::size_t individual_size = 0, population_size = 0;
     functions function = functions::none;
-    bool init_only = false;
     int option = 0, seed = std::random_device()();
     types type = types::none;
     std::string_view function_name;
 
-    while ((option = getopt(argc, argv, "f:hi:op:s:t:")) != -1)
+    while ((option = getopt(argc, argv, "f:i:hp:s:t:")) != -1)
         switch (option)
         {
             case 'f':
@@ -83,16 +82,15 @@ parser(int argc, char **argv)
                     << "usage: " << argv[0] << "\n"
                     << "\t-f "
                        "(bent_cigar|different_powers|discus|"
-                       "katsuura|rastigin|rosenbrock|schaffers|"
+                       "katsuura|none|rastigin|rosenbrock|schaffers|"
                        "schwefel|sharp_ridge|sphere) (required)\n"
                     << "\t-h show this help             (optional)\n"
                     << "\t-i individual size            (required)\n"
-                    << "\t-o init only                  (optional)\n"
                     << "\t-p population size            (required)\n"
                     << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
-            case 'i': init_only = true; break;
+            case 'i': individual_size = atoi(optarg); break;
             case 'p': population_size = atoi(optarg); break;
             case 's': seed = atoi(optarg); break;
             case 't':
@@ -107,16 +105,7 @@ parser(int argc, char **argv)
                         exit(EXIT_FAILURE);
                 }
                 break;
-            default:
-                std::cerr << argv[0] << ": unknown option\n";
-                exit(EXIT_FAILURE);
         }
-
-    if (function == functions::none)
-    {
-        std::cerr << argv[0] << ": function parameter required!\n";
-        exit(EXIT_FAILURE);
-    }
 
     if (individual_size == 0)
     {
@@ -140,8 +129,7 @@ parser(int argc, char **argv)
 
     engine.seed(seed);
 
-    return {
-        function, individual_size, init_only, population_size, type};
+    return {function, individual_size, population_size, type};
 }
 
 //-------------------------------------------------------------------
@@ -149,7 +137,6 @@ parser(int argc, char **argv)
 template<typename T>
 T work(functions function,
        std::size_t individual_size,
-       bool init_only,
        std::size_t population_size)
 {
     using individual = std::vector<T>;
@@ -163,9 +150,9 @@ T work(functions function,
         for (auto &gene : i)
             gene = rng_domain();
 
-    if (init_only)
+    if (function == functions::none)
     {
-        // avoid unused code removal
+        // no evaluation must avoid unused code removal
         std::uniform_int_distribution<std::size_t> pop_index(
             0, population_size - 1);
         auto rng_pop = std::bind(pop_index, std::ref(engine));
@@ -227,31 +214,25 @@ T work(functions function,
 
 int main(int argc, char **argv)
 {
-    auto [function,
-          individual_size,
-          init_only,
-          population_size,
-          type] = parser(argc, argv);
+    auto [function, individual_size, population_size, type] =
+        parser(argc, argv);
+
+    std::cout << "individual_size = " << individual_size << '\n'
+              << "population_size = " << population_size << '\n';
 
     switch (type)
     {
         case types::f:
-            return work<float>(function,
-                               individual_size,
-                               init_only,
-                               population_size);
+            return work<float>(
+                function, individual_size, population_size);
             break;
         case types::d:
-            return work<double>(function,
-                                individual_size,
-                                init_only,
-                                population_size);
+            return work<double>(
+                function, individual_size, population_size);
             break;
         case types::l:
-            return work<long double>(function,
-                                     individual_size,
-                                     init_only,
-                                     population_size);
+            return work<long double>(
+                function, individual_size, population_size);
             break;
         default: std::cerr << "unknown type\n"; exit(EXIT_FAILURE);
     }
