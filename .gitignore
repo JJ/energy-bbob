@@ -36,3 +36,7 @@ auto/
 
 # VScode
 .vscode/
+
+# R
+.Rproj.user/
+*.Rproj
