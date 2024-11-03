@@ -196,6 +196,9 @@ T work(functions function,
             case functions::rastrigin:
                 evaluator = rastrigin_function<individual>;
                 break;
+            case functions::rosenbrock:
+                evaluator = rosenbrock_function<individual>;
+                break;
             case functions::schaffers:
                 evaluator = schaffers_function<individual>;
                 break;
