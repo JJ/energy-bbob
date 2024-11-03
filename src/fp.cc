@@ -14,7 +14,7 @@
 
 //-------------------------------------------------------------------
 
-const std::size_t POPULATION_SIZE = 1'000'000;
+const std::size_t POPULATION_SIZE = 40'000;
 
 enum class functions : std::size_t {
     bent_cigar = 0,
@@ -39,7 +39,7 @@ std::mt19937_64 engine;
 std::tuple<functions, std::size_t, std::size_t, types>
 parser(int argc, char **argv)
 {
-    std::size_t individual_size = 0, population_size = 0;
+    std::size_t individual_size = 128, population_size = POPULATION_SIZE;
     functions function = functions::none;
     int option = 0, seed = std::random_device()();
     types type = types::none;
