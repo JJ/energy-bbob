@@ -15,6 +15,7 @@ REP = 100
 SRC = $(wildcard *.cc)
 SVG = $(LOG:.log=.svg)
 TMP = $(wildcard *.tmp)
+CXXSTD = c++23
 
 #------------------------------------------------------------------------------
 
@@ -23,9 +24,10 @@ ifneq ("$(wildcard /opt/homebrew/bin/g++-14)","")
 	CXX = /opt/homebrew/bin/g++-14
 else ifneq ("$(wildcard /usr/bin/g++-10)","")
 	CXX = g++-10
+	CXXSTD = c++2a
 endif
 
-CXXFLAGS = -flto -march=native -O3 -Wall
+CXXFLAGS = -flto -march=native -O3 -Wall -std=$(CXXSTD)
 
 #------------------------------------------------------------------------------
 
