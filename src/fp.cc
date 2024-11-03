@@ -200,22 +200,26 @@ int main(int argc, char **argv)
     std::cout << "individual_size = " << individual_size << '\n'
               << "population_size = " << population_size << '\n';
 
+    long double result = 0.0;
+
     switch (type)
     {
         case types::f:
-            return work<float>(
-                function, individual_size, population_size);
+            result = work<float>(function, individual_size, population_size);
             break;
         case types::d:
-            return work<double>(
-                function, individual_size, population_size);
+            result = work<double>(function, individual_size, population_size);
             break;
         case types::l:
-            return work<long double>(
-                function, individual_size, population_size);
+            result = work<long double>(function, individual_size, population_size);
             break;
-        default: std::cerr << "unknown type\n"; exit(EXIT_FAILURE);
+        default:
+            std::cerr << "unknown type\n";
+            exit(EXIT_FAILURE);
     }
+
+    std::cout << "Result: " << result << '\n';
+    return 0;
 }
 
 //-------------------------------------------------------------------
