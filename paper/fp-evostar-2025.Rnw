@@ -1,0 +1,52 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{color}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\newcommand{\pinp}{\texttt{pinpoint}}
+\newcommand{\lik}{\texttt{likwid}}
+
+\begin{document}
+\title{}
+
+%\author{
+%  Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Antonio M. Mora\inst{2}\orcidID{0000-0003-1603-9105} \and Mario García-Valdez\inst{3}\orcidID{0000-0002-2593-1114}
+%}
+% \institute{Department of Computer Engineering, Automatics and Robotics and CITIC University of Granada, Granada, Spain \and
+% Department of Signal Theory, Telematics and Communications, University of Granada, Granada, Spain \and
+% Department of Graduate Studies, National Technological Institute of Mexico, Tijuana, Mexico\\
+% \email{jmerelo@ugr.es, amorag@ugr.es, mario@tectijuana.edu.mx}
+% }
+
+\author{ A. U. Thorone \inst{1} \and B. U. Thortwo \inst{2} \and C. U. Thorzree \inst{1}}
+\institute{ Department of Paper Publication, Miskatonic University, Arkham, MA, USA \and Department of Miscellaneous Stuff, University of Nowhere, Nowhere, ZZ, USA\\
+}
+\maketitle
+
+\begin{abstract}
+
+\keywords{Green computing, metaheuristics, energy-aware computing, evolutionary algorithms}
+\end{abstract}
+
+
+
+\section*{Acknowledgements and data availability}
+
+Acknowledgements Taking\\
+These number\\
+of lines
+
+% This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
+% Competitividad (Spanish Ministry of Competitivity and Economy) under project
+% PID2020-115570GB-C22 (DemocratAI::UGR). We are also very grateful to the {\sf zig} community. Source and data available from \url{https://github.com/JJ/energy-ga-icsoft-2023} under a GPL license.
+
+\bibliographystyle{splncs04}
+
+\bibliography{../energy}
+
+
+\end{document}
+
