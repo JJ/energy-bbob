@@ -40,3 +40,6 @@ auto/
 # R
 .Rproj.user/
 *.Rproj
+
+# emacs
+*~
