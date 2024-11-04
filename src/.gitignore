@@ -1,4 +1,6 @@
 fp
+fp-128
+
 *.log
 *.tmp
 *.svg
