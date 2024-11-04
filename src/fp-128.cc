@@ -45,7 +45,7 @@ parser(int argc, char **argv)
     types type = types::f;
     std::string_view function_name;
 
-    while ((option = getopt(argc, argv, "f:i:hp:s:t:")) != -1)
+    while ((option = getopt(argc, argv, "f:hs:t:")) != -1)
         switch (option)
         {
             case 'f':
