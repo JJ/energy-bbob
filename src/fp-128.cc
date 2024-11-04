@@ -33,15 +33,13 @@ enum class functions : std::size_t {
 
 enum class types { f, d, l, none };
 
-std::mt19937_64 engine;
-
 //-------------------------------------------------------------------
 
 std::tuple<functions, types>
 parser(int argc, char **argv)
 {
     functions function = functions::none;
-    int option = 0, seed = std::random_device()();
+    int option = 0;
     types type = types::f;
     std::string_view function_name;
 
@@ -112,6 +110,8 @@ T work(functions function)
     // initialize population
     population p(POPULATION_SIZE, individual(INDIVIDUAL_SIZE));
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
+    std::mt19937_64 engine;
+    engine.seed(std::random_device()());
     auto rng_domain = std::bind(domain, std::ref(engine));
     for (auto &i : p)
         for (auto &gene : i)
@@ -181,6 +181,7 @@ T work(functions function)
 
 int main(int argc, char **argv)
 {
+
     auto [function, type] =
         parser(argc, argv);
 
