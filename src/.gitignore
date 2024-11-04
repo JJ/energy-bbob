@@ -1,5 +1,6 @@
 fp
 fp-128
+fp-fixed
 
 *.log
 *.tmp

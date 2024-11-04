@@ -14,9 +14,6 @@
 
 //-------------------------------------------------------------------
 
-const std::size_t POPULATION_SIZE = 40'000;
-const std::size_t INDIVIDUAL_SIZE = 128;
-
 enum class functions : std::size_t {
     bent_cigar = 0,
     different_powers = 1,
@@ -77,9 +74,6 @@ parser(int argc, char **argv)
                        "katsuura|none|rastigin|rosenbrock|schaffers|"
                        "schwefel|sharp_ridge|sphere) (required)\n"
                     << "\t-h show this help             (optional)\n"
-                    << "\t-i individual size            (optional)\n"
-                    << "\t-p population size            (optional)\n"
-                    << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
             case 't':
@@ -104,11 +98,14 @@ parser(int argc, char **argv)
 template<typename T>
 T work(functions function)
 {
-    using individual = std::vector<T>;
+    const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 40'000;
+    using individual = std::array<T, INDIVIDUAL_SIZE>;
     using population = std::vector<individual>;
 
     // initialize population
-    population p(POPULATION_SIZE, individual(INDIVIDUAL_SIZE));
+    std::cout << "INDIVIDUAL_SIZE = " << INDIVIDUAL_SIZE << '\n'
+              << "POPULATION_SIZE = " << POPULATION_SIZE << '\n';
+    population p(POPULATION_SIZE);
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
     std::mt19937_64 engine;
     engine.seed(std::random_device()());
@@ -184,9 +181,6 @@ int main(int argc, char **argv)
 
     auto [function, type] =
         parser(argc, argv);
-
-    std::cout << "INDIVIDUAL_SIZE = " << INDIVIDUAL_SIZE << '\n'
-              << "POPULATION_SIZE = " << POPULATION_SIZE << '\n';
 
     long double result = 0.0;
 
