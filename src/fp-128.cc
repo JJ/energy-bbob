@@ -45,7 +45,7 @@ parser(int argc, char **argv)
     types type = types::f;
     std::string_view function_name;
 
-    while ((option = getopt(argc, argv, "f:hs:t:")) != -1)
+    while ((option = getopt(argc, argv, "f:ht:")) != -1)
         switch (option)
         {
             case 'f':
@@ -84,7 +84,6 @@ parser(int argc, char **argv)
                     << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
-            case 's': seed = atoi(optarg); break;
             case 't':
                 switch (optarg[0])
                 {
@@ -98,8 +97,6 @@ parser(int argc, char **argv)
                 }
                 break;
         }
-
-    engine.seed(seed);
 
     return {function, type};
 }
