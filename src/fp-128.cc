@@ -99,12 +99,6 @@ parser(int argc, char **argv)
                 break;
         }
 
-    if (type == types::none)
-    {
-        std::cerr << argv[0] << ": type parameter required!\n";
-        exit(EXIT_FAILURE);
-    }
-
     engine.seed(seed);
 
     return {function, type};
