@@ -45,6 +45,8 @@ This is why our methodology needs an additional step to register the actual ener
 
 Effectively, what we will use as baseline is chromosome generation. After all, you need to generate chromosomes to apply any kind of function to them. Time consumed in generation, however, is not critical in an evolutionary algorithm since it is done only once at algorithm startup, so we will measure it together with the energy consumed by the whole system. Besides using this as a baseline, this will give us also a measure of energy consumed by different types of data structures.
 
+We will perform all experiments in a Linux system {\tt 5.15.0-124-generic \#134~20.04.1-Ubuntu SMP} running in an {\em AMD Ryzen 9 3950X} with 16 cores, although we will be using a single core. The compiler we will use is {\tt g++ 10.5.0}\footnote{This is admittedly not the latest version, but the most modern one that can be run in a Ubuntu 20.04}. All programs have been compiled with the flags {\tt -flto -march=native -O3 -Wall -std=c++2a}, that is, link-time optimization, native architecture, third level of optimization (which is the maximum available, {\tt -O4} might result in worse performance) that instructs the compiler to use all reasonable machine-level optimizations, all warnings, and the C++ 20 standard. In general, what we are telling the compiler is to use its own heuristics to create the best possible code for the architecture we are running on, as well as the most current standard it is able to process \footnote{Which is not the most current one, however. We do not think that the specific standard will have influence on the ranking of results, though.}.
+
 \section*{Acknowledgements and data availability}
 
 Acknowledgements Taking\\
