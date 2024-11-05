@@ -10,13 +10,13 @@ use Utils qw(process_pinpoint_output);
 
 my $preffix = shift || die "I need a prefix for the data files";
 my $data_dir = shift || "data";
-my $function = shift;
+my $function = shift || "generation";
 
 my $ITERATIONS = 30;
 my ($mon,$day,$hh,$mm,$ss) = localtime() =~ /(\w+)\s+(\d+)\s+(\d+)\:(\d+)\:(\d+)/;
 my $suffix = "$day-$mon-$hh-$mm-$ss";
 
-open my $fh, ">", "$data_dir/$preffix-$suffix.csv";
+open my $fh, ">", "$data_dir/$preffix-$function-$suffix.csv";
 say $fh "Platform,size,PKG,seconds";
 
 my $work = $function ? "-f $function":"";
@@ -33,14 +33,14 @@ for my $l ( qw(128 256 512) ) {
     if ($gpu != 0 ) {
       $successful++;
       $total_seconds += $seconds;
-      say "$preffix, $l,$pkg, $seconds";
+      say "$preffix, $function, $l,$pkg, $seconds";
       push @results, [$pkg,$seconds];
     }
   } while ( $successful < $ITERATIONS );
 
   foreach  my $row (@results) {
     say join(", ", @$row);
-    say $fh "$preffix, $l, ", join(", ", @$row);
+    say $fh "$function, $l, ", join(", ", @$row);
   }
 }
 close $fh;
