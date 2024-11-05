@@ -35,6 +35,16 @@
 
 We live in an era where obtaining better performance through faster hardware that besides consumes less power is no longer possible. Optimization through software is still possible at many levels, through the use of software engineering techniques or at the evolutionary algorithm level, trying to create better ways of sampling the solution space so that better solutions are found faster. However, energy consumption is also a concern, and has been in the area of evolutionary algorithms for many years already.
 
+\section{State of the art}
+
+\section{Methodology}
+
+We will follow a methodology that has been already used in several other papers \cite{lion24-anon,zig1-anon,zig2-anon,icsoft23-anon}. The tool used for energy profiling is called {\sf pinpoint} \cite{pinpoint}, a multiplatform tool that taps into the RAPL API or, in the case of other platforms or operating systems, different APIs, offering a single command for measuring how much energy a process consumes. Since {\sf pinpoint} runs with a command, synchronization is not an issue, yielding system-wide energy consumption {\em while a process is running}.
+
+This is why our methodology needs an additional step to register the actual energy consumed by the specific workload we are interested in. In order to do that, in this paper we will follow the same methodology as in other papers such as \cite{wivace23-anon}: measure a common function as baseline; averages obtained  here will be subtracted from the time and energy consumed by the functions we want to study later on.
+
+Effectively, what we will use as baseline is chromosome generation. After all, you need to generate chromosomes to apply any kind of function to them. Time consumed in generation, however, is not critical in an evolutionary algorithm since it is done only once at algorithm startup, so we will measure it together with the energy consumed by the whole system. Besides using this as a baseline, this will give us also a measure of energy consumed by different types of data structures.
+
 \section*{Acknowledgements and data availability}
 
 Acknowledgements Taking\\
@@ -47,7 +57,7 @@ of lines
 
 \bibliographystyle{splncs04}
 
-\bibliography{../energy}
+\bibliography{energy,ga-energy,ours}
 
 
 \end{document}
