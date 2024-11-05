@@ -80,12 +80,10 @@ parser(int argc, char **argv)
                        "schwefel|sharp_ridge|sphere) (required)\n"
                     << "\t-h show this help             (optional)\n"
                     << "\t-i individual size            (optional)\n"
-                    << "\t-p population size            (optional)\n"
                     << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
             case 'i': individual_size = atoi(optarg); break;
-            case 'p': population_size = atoi(optarg); break;
             case 's': seed = atoi(optarg); break;
             case 't':
                 switch (optarg[0])
