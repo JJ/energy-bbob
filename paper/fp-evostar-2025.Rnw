@@ -10,7 +10,7 @@
 \newcommand{\lik}{\texttt{likwid}}
 
 \begin{document}
-\title{}
+\title{Optimizing energy consumption of BBOB fitness functions}
 
 %\author{
 %  Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Antonio M. Mora\inst{2}\orcidID{0000-0003-1603-9105} \and Mario García-Valdez\inst{3}\orcidID{0000-0002-2593-1114}
@@ -31,7 +31,9 @@
 \keywords{Green computing, metaheuristics, energy-aware computing, evolutionary algorithms}
 \end{abstract}
 
+\section{Introduction}
 
+We live in an era where obtaining better performance through faster hardware that besides consumes less power is no longer possible. Optimization through software is still possible at many levels, through the use of software engineering techniques or at the evolutionary algorithm level, trying to create better ways of sampling the solution space so that better solutions are found faster. However, energy consumption is also a concern, and has been in the area of evolutionary algorithms for many years already.
 
 \section*{Acknowledgements and data availability}
 
