@@ -21,7 +21,7 @@ say $fh "work,type,size,PKG,seconds";
 
 my $work = $function ne "generation" ? "-f $function":"";
 
-for my $t ( qw(f d ) {
+for my $t ( qw(f d ) ) {
   for my $l ( qw(128 256 512) ) {
     my $total_seconds;
     my $successful = 0;
