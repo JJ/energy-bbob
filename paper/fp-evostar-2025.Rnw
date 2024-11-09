@@ -47,6 +47,25 @@ Effectively, what we will use as baseline is chromosome generation. After all, y
 
 We will perform all experiments in a Linux system {\tt 5.15.0-124-generic \#134~20.04.1-Ubuntu SMP} running in an {\em AMD Ryzen 9 3950X} with 16 cores, although we will be using a single core. The compiler we will use is {\tt g++ 10.5.0}\footnote{This is admittedly not the latest version, but the most modern one that can be run in a Ubuntu 20.04}. All programs have been compiled with the flags {\tt -flto -march=native -O3 -Wall -std=c++2a}, that is, link-time optimization, native architecture, third level of optimization (which is the maximum available, {\tt -O4} might result in worse performance) that instructs the compiler to use all reasonable machine-level optimizations, all warnings, and the C++ 20 standard. In general, what we are telling the compiler is to use its own heuristics to create the best possible code for the architecture we are running on, as well as the most current standard it is able to process \footnote{Which is not the most current one, however. We do not think that the specific standard will have influence on the ranking of results, though.}.
 
+<<evostar.bbob.setup, echo=F, message=F, fig.height=4, fig.cap="Time in seconds for every experiment generating 40K chromosomes with 128,256,512 dimensions, using float or double for every one of them">>=
+library(ggplot2)
+library(ggthemes)
+base.variable.data <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
+
+base.variable.data$size <- as.factor(base.variable.data$size)
+base.variable.data$type <- as.factor(base.variable.data$type)
+ggplot(base.variable.data, aes(x=PKG, y=seconds, color=type, shape=size)) +
+  geom_point() +
+  labs(title="Energy consumption of BBOB functions", x="PKG Energy (Joules)", y="seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+@
+
+The code use, which is available from this paper repository (hidden URL) has been adapted from the BBOB code \cite{hansen2010comparing} by using C++ generics to employ the same code for {\sf float} and {\sf double} types for each dimension. Since {\sf doubles} take twice as many bytes as {\sf floats}, simply going through them should have an impact on consumed energy. By default, {\sf BBOB} is programmed for {\sf doubles}; however, using float or double should not have any measurable impact on evolutionary algorithm performance. BBOB looks for a $10^{-8}$ target; this is close to {\sf float} precision (which is 6 digits without round-trip errors, 7 with some errors, 8 attainable depending on the values codified), so we could not really use {\sf float} to represent the dimension of BBOB functions. However, we are using BBOB functions as representative of floating-point fitness function, and assuming the type used to represent function values is a choice that is under control of the researcher. We are also trying to measure what is the difference in energy consumption between using {\sf float} and {\sf double}, so that this enters into consideration when creating an EA experiment.
+
+The other variable we are changing in these experiments is the number of dimensions, which we call {\sf size} here. We will start at 128, and double up to 512. Again, the dimensions used in BBOB stop at 100, but increasing the size will be useful to be able to measure differences in time and energy consumed with more precision.
+
+As is usual, we have generated 40K chromosomes, and repeated runs for every combination 30 times. The results are shown in Figure \ref{fig:evostar.bbob.setup}.
+
 \section*{Acknowledgements and data availability}
 
 Acknowledgements Taking\\
@@ -59,7 +78,7 @@ of lines
 
 \bibliographystyle{splncs04}
 
-\bibliography{energy,ga-energy,ours}
+\bibliography{energy,ga-energy,ours,GAs}
 
 
 \end{document}
