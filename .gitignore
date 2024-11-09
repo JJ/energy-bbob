@@ -33,6 +33,13 @@
 
 # Latex
 auto/
+figure/
+*.log
+*.pdf
+*.bbl
+*.concordance.tex
+*.synctex.gz
+*.tex
 
 # VScode
 .vscode/
@@ -40,6 +47,7 @@ auto/
 # R
 .Rproj.user/
 *.Rproj
+.Rhistory
 
 # emacs
 *~
