@@ -88,6 +88,9 @@ We are, however, also interested in the actual type we use to represent this num
 
 We should emphasize that that this is the baseline measurement. We will measure the energy consumed by a selected sample of BBOB functions next.
 
+\section{Measuring energy consumption of BBOB functions}
+\label{sec:measurements}
+
 
 \section*{Acknowledgements and data availability}
 
