@@ -50,6 +50,8 @@ We will perform all experiments in a Linux system {\tt 5.15.0-124-generic \#134~
 <<evostar.bbob.setup, echo=F, message=F, fig.height=4, fig.cap="Time in seconds for every experiment generating 40K chromosomes with 128,256,512 dimensions, using float or double for every one of them">>=
 library(ggplot2)
 library(ggthemes)
+library(dplyr)
+
 base.variable.data <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
 
 base.variable.data$size <- as.factor(base.variable.data$size)
@@ -58,6 +60,8 @@ ggplot(base.variable.data, aes(x=PKG, y=seconds, color=type, shape=size)) +
   geom_point() +
   labs(title="Energy consumption of BBOB functions", x="PKG Energy (Joules)", y="seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+base.variable.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds), sd.seconds=sd(seconds), mean.PKG = mean(PKG), sd.PKG = sd(PKG)) -> summary.base.variable.data
 @
 
 The code use, which is available from this paper repository (hidden URL) has been adapted from the BBOB code \cite{hansen2010comparing} by using C++ generics to employ the same code for {\sf float} and {\sf double} types for each dimension. Since {\sf doubles} take twice as many bytes as {\sf floats}, simply going through them should have an impact on consumed energy. By default, {\sf BBOB} is programmed for {\sf doubles}; however, using float or double should not have any measurable impact on evolutionary algorithm performance. BBOB looks for a $10^{-8}$ target; this is close to {\sf float} precision (which is 6 digits without round-trip errors, 7 with some errors, 8 attainable depending on the values codified), so we could not really use {\sf float} to represent the dimension of BBOB functions. However, we are using BBOB functions as representative of floating-point fitness function, and assuming the type used to represent function values is a choice that is under control of the researcher. We are also trying to measure what is the difference in energy consumption between using {\sf float} and {\sf double}, so that this enters into consideration when creating an EA experiment. In both cases, we will use the variable-size {\sf vector} data structure from the standard library.
@@ -91,6 +95,40 @@ We should emphasize that that this is the baseline measurement. We will measure 
 \section{Measuring energy consumption of BBOB functions}
 \label{sec:measurements}
 
+<<evostar.bbob.functions, echo=F, message=F, warning=F, fig.height=6, out.width="30%", fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
+functions.data <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+functions.data <- functions.data[functions.data$work != "none",]
+number.of.rows <- nrow(functions.data[ functions.data$size==128 & functions.data$type==" f",])
+functions.data$delta.PKG <- 0
+functions.data[ functions.data$size==128 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==128 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 128 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==256 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==256 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 256 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==512 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==512 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 512 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==128 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==128 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 128 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==256 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==256 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 256 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==512 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==512 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 512 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
+
+ggplot(functions.data[ functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10() + theme(legend.position="none")
+
+ggplot(functions.data[ functions.data$size==256,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=256", y=NULL, x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()+ theme(legend.position="none")
+
+ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=256", y=NULL, x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
+@
 
 \section*{Acknowledgements and data availability}
 
