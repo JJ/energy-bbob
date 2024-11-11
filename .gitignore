@@ -48,6 +48,7 @@ figure/
 .Rproj.user/
 *.Rproj
 .Rhistory
+.RData
 
 # emacs
 *~
