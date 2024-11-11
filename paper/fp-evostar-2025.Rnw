@@ -130,6 +130,12 @@ ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, colo
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
 @
 
+As mentioned, the Black Box Optimization Benchmark \cite{hansen2010comparing} proposes a set of fitness function that act on floating point chromosomes, 24 of them, grouped in several subsets: separable, low or moderate conditioning, high conditioning or unimodal and finally multimodal functions with weak or "adequate" global structure. Since there are 5 subsets, we have picked up some from each one: {\sf sphere} and {\sf Rastrigin} from the first, {\sf Rosenbrock} from the second, {\sf discus}, {\sf bent\_cigar}, {\sf different\_powers} and {\sf sharp\_ridge} from the third, {\sf schaffers} from the fourth and finally {\sf katsuura} and {\sf schwefel} from the last one. These are simply representative functions chosen randomly. We think they are a good, non-biased representation of the whole set of functions, at least from the point of view of energy consumption.
+
+As in previous papers, we have applied the functions to the 40K chromosomes previously generated. In Figure \ref{fig:evostar.bbob.functions} we show a boxplot of the energy consumed by each function, once the average energy used to generate the chromosomes has been subtracted, and organized by chromosome size, with energy consumed by {\sf float} and {\sf double} shown in different colors. At the left chart we can see that some glyphs for {\sf float} are missing; this is simply because there is basically no difference between the energy consumed by generation and the one needed to compute the function; this is probably due to the fact that they use essentially the same code so that the delta in energy consumption is optimized away; this happens with the {\sf bent\_cigar}, {\sf different\_powers}, {\sf discus} and {\sf schwefels} BBOB functions.
+
+Another interesting pattern is that the range of energy consumption is so big that we had to use a logarithmic scale to represent it.
+
 \section*{Acknowledgements and data availability}
 
 Acknowledgements Taking\\
