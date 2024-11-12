@@ -159,7 +159,31 @@ Another interesting pattern is that the range of energy consumption is so big th
 
 <<evostar.bbob.fixed.functions, echo=F, message=F, warning=F, fig.height=6, out.width="30%", fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
 fixed.functions.data <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+number.of.rows <- nrow(fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",])
+fixed.functions.data$delta.PKG <- 0
+fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" f", ]$mean.PKG,number.of.rows)
+fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" d",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" d",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" d", ]$mean.PKG,number.of.rows)
+fixed.functions.data$delta.PKG <- pmax(fixed.functions.data$delta.PKG, 0)
 
+ggplot(fixed.functions.data[ fixed.functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+fixed.functions.data$data.structure <- "Fixed"
+functions.data$data.structure <- "Variable"
+
+functions.128 <- rbind(fixed.functions.data[ fixed.functions.data$size==128,], functions.data[ functions.data$size==128,])
+
+ggplot(functions.128[ functions.128$type==" f",], aes(x=work, y=delta.PKG, color=data.structure)) +
+  geom_boxplot( position="dodge") +
+  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
+
+ggplot(functions.128[ functions.128$type==" d",], aes(x=work, y=delta.PKG, color=data.structure)) +
+  geom_boxplot( position="dodge") +
+  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
 @
 
 \section*{Acknowledgements and data availability}
