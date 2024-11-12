@@ -189,6 +189,12 @@ ggplot(functions.128[ functions.128$type==" d",], aes(x=work, y=delta.PKG, color
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
 @
 
+\section{Discussion and conclusions}
+
+In this paper, we have applied a methodology that has been proved to work correctly for this line of work so far, working with interpreted and compiled functions: splitting the measurements in baseline measurements for generation of chromosomes and then measuring functions allows us to check the actual consumption of the functions (or operators in other papers) we are interested in.
+
+This methodology fails, however, when using advanced compilers that look globally at the code and generate the best machine code possible for performance. This shows in the measurements, when the function under measurement is simply folded into the chromosome generation loop using complex machine code instructions so that it is impossible to separate one from the other, resulting in 0 energy consumption for it if it is simple enough (notably in the case of {\sf rastrigin}). This evidently does not mean that the function is not being executed or not consuming anything in the general case; only that we need to change baseline measurements so that the compiler actually generates independent code for those kind of functions and we can measure it.
+
 \section*{Acknowledgements and data availability}
 
 Acknowledgements Taking\\
