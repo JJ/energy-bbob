@@ -33,15 +33,20 @@
 
 \section{Introduction}
 
-We live in an era where obtaining better performance through faster hardware that besides consumes less power is no longer possible. Optimization through software is still possible at many levels, through the use of software engineering techniques or at the evolutionary algorithm level, trying to create better ways of sampling the solution space so that better solutions are found faster. However, energy consumption is also a concern, and has been in the area of evolutionary algorithms for many years already.
+We live in an era where obtaining better performance through faster hardware that besides consumes less power is no longer easy. Optimization through software is still possible at many levels, through the use of software engineering techniques or at the evolutionary algorithm level, trying to create better ways of sampling the solution space so that better solutions are found faster. However, energy consumption is also a concern, and has been in the area of evolutionary algorithms for many years already \cite{novoa2021measuring,garg2023analyzing,jamil2022analyzing,10.1007/978-3-319-45823-6_51,fernandez2019}.
 
 % Im not sure about the first sentence, the M4 chip is faster and consumes less power than the M1 chip.
 % But I think the point is that the performance gains are not as big as they used to be.
 % Maybe make that more explicit? - Mario
+% Changed it to "easy" - JJ
+
+And while there are many different tools to diagnose with high granularity performance and improve it at many different levels, making evolutionary algorithms "greener" by improving energy consumption is still a challenging task that needs research at many levels: from a methodology that measures energy consumption for specific functions, to best practices or even rules of thumb that can be applied to specific implementations to reduce their carbon footprint.
+
+
 
 \section{State of the art}
 
-Floating-point operations are a major contributor to energy spending in numerical applications that require a wide range of values using double- or single-precision formats. Experimental evidence shows that in FP-intensive applications, FP operations account for as much as 50\% of the energy consumed by a core and its associated memory \cite{tagliavini2017transprecision}. However, many applications in fields such as computer vision, multimedia, soft computing and machine learning work with data that is inherently imprecise or can yield results that are not strictly deterministic. Researchers have exploited these  soft computing requirements to relax the precision requirements of FP operations, thus achieving considerable reductions in energy consumption \cite{khudia2014harnessing}. 
+Floating-point operations are a major contributor to energy spending in numerical applications that require a wide range of values using double- or single-precision formats. Experimental evidence shows that in FP-intensive applications, FP operations account for as much as 50\% of the energy consumed by a core and its associated memory \cite{tagliavini2017transprecision}. However, many applications in fields such as computer vision, multimedia, soft computing and machine learning work with data that is inherently imprecise or can yield results that are not strictly deterministic. Researchers have exploited these  soft computing requirements to relax the precision requirements of FP operations, thus achieving considerable reductions in energy consumption \cite{khudia2014harnessing}.
 
 Sampson et al. \cite{sampson2011enerj} developed EnerJ an extension to Java that included approximate data types together with a hardware architecture providing explicit support to approximate storage and computations. EnerJ uses type qualifiers to designate data types that tolerate approximate computations. With these qualifiers, the system automatically maps approximate variables to low-power storage, utilizes energy-efficient operations, and selectively applies optimized algorithms provided by the programmer to reduce power consumption further.
 
