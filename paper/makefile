@@ -23,8 +23,9 @@ clean:
 	-rm -fv $(AUX) $(BBL) $(BLG) $(FDB) $(FLS) $(LOG) $(PDF) $(R) $(SPL) $(TEX) *~
 
 install:
-	sudo dnf -y install R{,-{dplyr,ggplot2,knitr}} texlive-soul
-	sudo R -e 'install.packages("kableExtra", repos = "https://cran.rediris.es/"); quit();' -q
+	for i in dplyr ggplot2 ggthemes kableExtra knitr; do
+		sudo R -e "install.packages(\"$$i\");" -q
+	done
 
 %.pdf: %.tex
 	latexmk -pdf -shell-escape $<
@@ -37,4 +38,3 @@ install:
 
 .PHONY: all auto clean pre
 .PRECIOUS: $(R)
-
