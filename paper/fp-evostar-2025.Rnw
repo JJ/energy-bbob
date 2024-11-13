@@ -40,6 +40,8 @@ We live in an era where obtaining better performance through faster hardware tha
 % Maybe make that more explicit? - Mario
 % Changed it to "easy" - JJ
 
+Reducing the amount of energy consumed by any kind of program is simply good engineering, but in the case of evolutionary algorithms we can also say that implementation matters \cite{merelo2011implementation} also in the sense of reducing the carbon footprint of our experiments. In many cases, we can find insights on the inner working of evolutionary algorithms, discover new energy-neutral operators or methodologies, and in general consider algorithms and their implementations in a more holistic way in order to create the best implementation available for our experiments.
+
 And while there are many different tools to diagnose with high granularity performance and improve it at many different levels, making evolutionary algorithms "greener" by improving energy consumption is still a challenging task that needs research at many levels: from a methodology that measures energy consumption for specific functions, to best practices or even rules of thumb that can be applied to specific implementations to reduce their carbon footprint.
 
 
