@@ -106,7 +106,7 @@ The code use, which is available from this paper repository (hidden URL) has bee
 
 The other variable we are changing in these experiments is the number of dimensions, which we call {\sf size} here. We will start at 128, and double up to 512. Again, the dimensions used in BBOB stop at 100, but increasing the size will be useful to be able to measure differences in time and energy consumed with more precision.
 
-As is usual, we have generated 40K random chromosomes, using the RNG that consumes the least, {\tt mt19937\_64} \cite{mersennetwister}, and repeated runs for every combination 30 times. The results are shown in Figure \ref{fig:evostar.bbob.setup}. What we see in this figure is that the spread in energy consumption is, as usual, much bigger than the spread in running time, which has been found elsewhere and is expected. The energy a program draws from the system depends on the ambient temperature, as well as the other programs that are running, the {\em split} observed between 10 Joules and around 14 joules for the floating point experiments with size = 512 is not surprising, and is one of the reasons why we are running 30 experiments in the first place. Other than that, what we see is that except for this case, energy consumed is not so different between float and double; while the amount of time it take is, they consume roughly the same, meaning the power drawn by double precision arithmetic is {\em lower} than for single precision. We need to take into account, however, that this is a baseline measurement that will be influenced by the system overhead; we will need to measure the actual functions to confirm these measurements.
+As is usual, we have generated 40K random chromosomes, using the RNG that consumes the least, {\tt mt19937\_64} \cite{mersennetwister}, and repeated runs for every combination 30 times. The results are shown in Figure \ref{fig:evostar.bbob.setup}. What we see in this figure is that the spread in energy consumption is, as usual, much bigger than the spread in running time, which has been found elsewhere and is expected. The energy a program draws from the system depends on the ambient temperature, as well as the other programs that are running, the {\em split} observed between 10 Joules and around 14 joules for the floating point experiments with size = 512 is not surprising, and is one of the reasons why we are running 30 experiments in the first place. Other than that, what we see is that except for this case, energy consumed is not so different between float and double; while the amount of time it take is, they consume roughly the same, meaning the power drawn by double precision arithmetic is {\em lower} than for single precision for every operation. We need to take into account, however, that this is a baseline measurement that will be influenced by the system overhead; we will need to measure the actual functions to confirm these measurements.
 
 % Other papers have observed differences in energy consumption affected by the CPU temperature, I think this is more
 % important than the ambient temperature, also the temperature of the CPU increases as it its working  - Mario
@@ -138,7 +138,7 @@ We should emphasize that that this is the baseline measurement. We will measure 
 \section{Measuring energy consumption of BBOB functions}
 \label{sec:measurements}
 
-<<evostar.bbob.functions, echo=F, message=F, warning=F, fig.height=6, out.width="30%", fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
+<<evostar.bbob.functions, echo=F, message=F, warning=F, fig.height=4, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales in every chart. The boxplot is missing when the application of the function takes approximately the same time than generating it.">>=
 functions.data <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
 functions.data <- functions.data[functions.data$work != "none",]
 number.of.rows <- nrow(functions.data[ functions.data$size==128 & functions.data$type==" f",])
@@ -160,16 +160,16 @@ functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
 ggplot(functions.data[ functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
   labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10() + theme(legend.position="none")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
 
 ggplot(functions.data[ functions.data$size==256,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
-  labs(title="Energy consumption of BBOB functions, length=256", y=NULL, x="function") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()+ theme(legend.position="none")
+  labs(title="Energy consumption of BBOB functions, length=256", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
 
 ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
-  labs(title="Energy consumption of BBOB functions, length=256", y=NULL, x="function") +
+  labs(title="Energy consumption of BBOB functions, length=512", y="PKG Energy (Joules)", x="function") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
 @
 
