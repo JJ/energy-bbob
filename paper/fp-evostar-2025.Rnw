@@ -27,6 +27,7 @@
 \maketitle
 
 \begin{abstract}
+Making software greener is a process that includes identifying the functions that consume the most energy, developing a methodology that is able to measure precisely that energy consumption and eventually measuring that energy under different design decisions and circumstances to be able to, eventually, produce best practices for minimizing said consumption. In this paper we are focusing on well known floating-point fitness functions: some functions included in the black box optimization benchmark that cover all different types of functions under study. In general, these fitness functions will be the single operation that consumes the most energy; this is why in this paper we use them to test a methodology that is able to measure the energy consumed by their implementation in a low-level language C++. We test different single-element representations (single and double precision) as well as individual level representation (fixed size vs. variable size), drawing conclusions on the adequacy and accuracy of the methodology as well as which combination of the above elements would consume the least.
 
 
 \keywords{Green computing, metaheuristics, energy-aware computing, evolutionary algorithms}
