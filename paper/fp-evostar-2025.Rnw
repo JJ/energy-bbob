@@ -209,7 +209,7 @@ It is difficult to claim one individual data structure being more efficient ener
 
 But we have tested an additional, fixed-size, data structure, an {\sf array} in C++. We show results for size = 128 in Figure \ref{fig:evostar.bbob.fixed.functions}. The first conclusion we can draw from comparing it with \ref{fig:evostar.bbob.functions} is that there is no case in which evaluating the function takes {\em nothing}; all cases show a certain amount of energy consumption, even if it is on the order of $10^{-1}$. And again, it is difficult to find any kind of advantage of using a data structure with less bytes (single precision) over another with more bytes; it is only better in a single case, and only slightly and non-significantly so, in the case of {\sf bent\_cigar}.
 
-<<evostar.bbob.compares, echo=F, message=F, warning=F, fig.height=6, out.width="50%", fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
+<<evostar.bbob.compares, echo=F, message=F, warning=F, fig.height=5, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
 fixed.functions.data$data.structure <- "Fixed"
 functions.data$data.structure <- "Variable"
 
@@ -223,7 +223,7 @@ ggplot(functions.128[ functions.128$type==" f",], aes(x=work, y=delta.PKG, color
 ggplot(functions.128[ functions.128$type==" d",], aes(x=work, y=delta.PKG, color=data.structure)) +
   geom_boxplot( position="dodge") +
   labs(title="array vs. vector, length=128, double", y="PKG Energy (Joules)", x="function") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10() + theme(legend.position="none")
 @
 
 But we are more interested in comparing it with the variable-size {\sf vector} data structure, which we don in \ref{fig:evostar.bbob.compares}, for single precision on the left hand side, double on the right. It is hard to see how the fixed size data structure could be better for {\sf float}, since the measurement is 0 for the variable-size data structure, the {\sf vector}, in some case. But even in cases where it is not 0 it is almost never better. A small (but significant) advantage for the more heavyweight functions, that is all. But let us remember than {\sf double} arrays were better than these, and let us compare the right-hand side panel. Again, in most cases (except for {\sf katsuura}), {\sf array}s are better, consuming less energy, or almost the same. So this adds up to our previous preliminary conclusion than double precision is better by saying that double precision {\sf vector}s are in most cases the data structure that consumes the least.
