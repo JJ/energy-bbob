@@ -10,7 +10,7 @@
 \newcommand{\lik}{\texttt{likwid}}
 
 \begin{document}
-\title{Optimizing energy consumption of BBOB fitness functions}
+\title{Measuring energy consumption of BBOB fitness functions}
 
 %\author{
 %  Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Antonio M. Mora\inst{2}\orcidID{0000-0003-1603-9105} \and Mario García-Valdez\inst{3}\orcidID{0000-0002-2593-1114}
@@ -27,6 +27,7 @@
 \maketitle
 
 \begin{abstract}
+
 
 \keywords{Green computing, metaheuristics, energy-aware computing, evolutionary algorithms}
 \end{abstract}
