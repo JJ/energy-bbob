@@ -69,6 +69,8 @@ We will follow a methodology that has been already used in several other papers 
 % I am confused about the last sentecte, pinpint measutes the energy consumed by one process, but then we talk
 % about system-wide energy consumption. - Mario
 % Pinpoint gives you both resuts? - Mario
+% I have explained this a bit - JJ
+In general, it is going to be impossible to separate everything that is happening on the system and the resources it is using from the specific resources our process is using; the maximum granularity we can aspire in energy profiling is to precisely measure the energy that has been consumed by the system starting at the same precise moment our process is starting, and finishing at the moment it is done.
 This is why our methodology needs an additional step to register the actual energy consumed by the specific workload we are interested in. In order to do that, in this paper we will follow the same methodology as in other papers such as \cite{wivace23-anon}: measure a common function as baseline; averages obtained here will be subtracted from the time and energy consumed by the functions we want to study later on.
 %  Lets see if I got this right, pinpoint measures the energy of the whole process, but we need the energy on one function, so we need to subtract the energy of the rest of the process? - Mario
 
