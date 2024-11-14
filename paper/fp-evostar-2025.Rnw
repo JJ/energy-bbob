@@ -81,6 +81,7 @@ This is why our methodology needs an additional step to register the actual ener
 %  Lets see if I got this right, pinpoint measures the energy of the whole process, but we need the energy on one function, so we need to subtract the energy of the rest of the process? - Mario
 %  Correct. is it clearer now? - JJ
 %  Yes! - M
+
 Effectively, what we will use as baseline is chromosome generation. After all, you need to generate chromosomes to apply any kind of function to them. Time consumed in generation, however, is not critical in an evolutionary algorithm since it is done only once at algorithm startup, so we will measure it together with the energy consumed by the whole system. Besides using this as a baseline, this will give us also a measure of energy consumed by different types of data structures.
 
 % I was seeing a guy in Youtube that was optimizing a hash function for speed in C, he went as far as
