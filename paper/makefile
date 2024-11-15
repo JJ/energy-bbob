@@ -15,7 +15,7 @@ TEX = $(RNW:.Rnw=.tex)
 all: $(PDF)
 
 auto: $(TEX)
-	latexmk -f -pdf -pvc -shell-escape -silent $< && killall -q latexmk &
+	latexmk -pdf -pvc -shell-escape -silent $< && killall -q latexmk &
 	while ps $$! > /dev/null; do inotifywait -e modify -qr .; make -s $<; done
 
 clean:
