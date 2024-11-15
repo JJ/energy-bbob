@@ -62,10 +62,18 @@ Floating-point operations are a major contributor to energy spending in numerica
 Sampson et al. \cite{sampson2011enerj} developed EnerJ, an extension to Java that included approximate data types together with a hardware architecture providing explicit support to approximate storage and computations. EnerJ uses type qualifiers to designate data types that tolerate approximate computations. With these qualifiers, the system automatically maps approximate variables to low-power storage, utilizes energy-efficient operations, and selectively applies optimized algorithms provided by the programmer to reduce power consumption further.
 
 In C++, several strategies and tools have been developed to improve energy efficiency in computing, specifically around floating-point (FP) operations. For instance, FloatX \cite{flegar2019floatx} is a header-only C++ library that allows developers to simulate floating-point numbers with custom bit lengths for the mantissa and exponent, essentially creating floating-point formats with lower precision than standard IEEE formats (binary32 and binary64), this is useful for testing how much precision can be reduced in calculations without significantly affecting accuracy
+   
+In this regard, Tagliavini et al. \cite{tagliavini2017transprecision}  introduced an approach called {\sf transprecision computing} to make ultra-low-power (ULP) embedded platforms more energy-efficient. They designed a custom floating-point system with two new data types: {\tt binary8}, an 8-bit format with lower precision (using only a 3-bit mantissa), and {\tt binary16alt}, a 16-bit format with a wider dynamic range (using an 8-bit exponent). The format of these new data types can be seen in Figure \ref{fig:transprecision}.
+\begin{figure}
+\caption{Tagliavini proposed floating point types.}
+\centering
+\begin{tabular}{p{4cm}p{0.5cm}p{8cm}}
+\includegraphics[height=14mm]{binary8.eps} & & \includegraphics[height=14mm]{binary16alt.eps} \\
+{\hspace{1cm} binary8 \hspace{1cm}} & & {\hspace{2cm} binary16alt \hspace{2cm}} \\
+\end{tabular}
+\label{fig:transprecision}
+\end{figure}
 
-In this regard, Tagliavini et al. \cite{tagliavini2017transprecision}  introduced an approach called {\sf transprecision computing} to make ultra-low-power (ULP) embedded platforms more energy-efficient. They designed a custom floating-point system with two new data types: {\tt binary8}, an 8-bit format with lower precision (using only a 3-bit mantissa), and {\tt binary16alt}, a 16-bit format with a wider dynamic range (using an 8-bit exponent).
-% Please explain this better
-% More details and formating added, I hope is more clear now - Mario
 The researchers created a C++ library to test their system and ran experiments on specialized transprecision hardware. Their results showed that this method reduced energy consumption by up to 30\%. They also found that 90\% of FP operations could be scaled down to use either 8-bit or 16-bit formats safely. Additionally, by optimizing precision and using vectorization, they reduced average execution time by 12\% and memory usage by 27\%. In this context, vectorization refers to a technique where multiple floating-point operations are performed simultaneously by taking advantage of a processor’s vector processing capabilities \cite{liang2017vectorization}. Vectorization is a case of paralellization where the compiler transform the processing of a set of scalar values into a single instruction that operates simultaneously on a several of them.
 
 \section{Methodology}
