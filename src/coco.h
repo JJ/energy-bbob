@@ -79,7 +79,7 @@ T katsuura_function(const Container &x)
         tmp = 1.0 + (i + 1) * tmp;
         result *= std::pow(tmp, 10.0 / std::pow((T)x.size(), (T)1.2));
     }
-    return 10.0 / ((T)x.size() / (T)x.size()) * (-1.0 + result);
+    return 10.0 / ((T)x.size() * (T)x.size()) * (-1.0 + result);
 }
 
 //-------------------------------------------------------------------
