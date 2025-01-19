@@ -12,18 +12,14 @@
 \begin{document}
 \title{Measuring energy consumption of BBOB fitness functions}
 
-%\author{
-%  Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Antonio M. Mora\inst{2}\orcidID{0000-0003-1603-9105} \and Mario García-Valdez\inst{3}\orcidID{0000-0002-2593-1114}
-%}
-% \institute{Department of Computer Engineering, Automatics and Robotics and CITIC University of Granada, Granada, Spain \and
-% Department of Signal Theory, Telematics and Communications, University of Granada, Granada, Spain \and
-% Department of Graduate Studies, National Technological Institute of Mexico, Tijuana, Mexico\\
-% \email{jmerelo@ugr.es, amorag@ugr.es, mario@tectijuana.edu.mx}
-% }
-
-\author{ A. U. Thorone \inst{1} \and B. U. Thortwo \inst{2} \and C. U. Thorzree \inst{1}}
-\institute{ Department of Paper Publication, Miskatonic University, Arkham, MA, USA \and Department of Miscellaneous Stuff, University of Nowhere, Nowhere, ZZ, USA\\
+\author{
+ Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Gustavo Romero López\inst{1}\orcidID{0000-0002-5498-7512} \and Mario García-Valdez\inst{2}\orcidID{0000-0002-2593-1114}
 }
+\institute{Department of Computer Engineering, Automatics and Robotics and CITIC University of Granada, Granada, Spain \and
+Department of Graduate Studies, National Technological Institute of Mexico, Tijuana, Mexico\\
+\email{jmerelo@ugr.es, gustavo@ugr.es, mario@tectijuana.edu.mx}
+}
+
 \maketitle
 
 \begin{abstract}
