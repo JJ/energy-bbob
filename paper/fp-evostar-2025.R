@@ -3,7 +3,7 @@ library(ggplot2)
 library(ggthemes)
 library(dplyr)
 
-base.variable.data <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
+base.variable.data <- read.csv("data//evostar25-generation-5-Nov-07-30-15.csv")
 
 base.variable.data$size <- as.factor(base.variable.data$size)
 base.variable.data$type <- as.factor(base.variable.data$type)
@@ -16,7 +16,7 @@ base.variable.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seco
 
 
 ## ----evostar.bbob.fixed, echo=F, message=F, fig.height=4, fig.cap="Time in seconds for every experiment generating 40K chromosomes with 128,256,512 dimensions, using float or double for every one of them"----
-base.fixed.data <- read.csv("../data/fixed-evostar25-generation-5-Nov-07-37-13.csv")
+base.fixed.data <- read.csv("data//fixed-evostar25-generation-5-Nov-07-37-13.csv")
 
 base.fixed.data$size <- as.factor(base.fixed.data$size)
 base.fixed.data$type <- as.factor(base.fixed.data$type)
@@ -36,7 +36,7 @@ base.fixed.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds
 
 
 ## ----evostar.bbob.functions, echo=F, message=F, warning=F, fig.height=4, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales in every chart. The boxplot is missing when the application of the function takes approximately the same time than generating it."----
-functions.data <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+functions.data <- read.csv("data//variable-evostar25-bbob-10-Nov-19-10-32.csv")
 functions.data <- functions.data[functions.data$work != "none",]
 number.of.rows <- nrow(functions.data[ functions.data$size==128 & functions.data$type==" f",])
 functions.data$delta.PKG <- 0
@@ -71,7 +71,7 @@ ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, colo
 
 
 ## ----evostar.bbob.fixed.functions, echo=F, message=F, warning=F, fig.height=4, fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, float or double. Please note $y$ scale is logarithmic"----
-fixed.functions.data <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+fixed.functions.data <- read.csv("data//evostar25-bbob-fixed-12-Nov-08-20-03.csv")
 number.of.rows <- nrow(fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",])
 fixed.functions.data$delta.PKG <- 0
 fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" f", ]$mean.PKG,number.of.rows)
