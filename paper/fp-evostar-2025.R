@@ -58,9 +58,9 @@ functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
 
 ggplot(functions.data[ functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
-  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  labs(title="Energy consumption of BBOB functions, variable-size data structure, length=128", y="PKG Energy (Joules)", x="function") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1,size=15)) + scale_y_log10()
-ggsave("img/bbob-energy-128.png", width=8, height=4, dpi=300)
+ggsave("img/energy-bbob-variable-size-128.png", width=8, height=4, dpi=300)
 
 ggplot(functions.data[ functions.data$size==256,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
@@ -74,7 +74,7 @@ ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, colo
 
 
 ## ----evostar.bbob.fixed.functions, echo=F, message=F, warning=F, fig.height=4, fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, float or double. Please note $y$ scale is logarithmic"----
-fixed.functions.data <- read.csv("data//evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+fixed.functions.data <- read.csv("data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
 number.of.rows <- nrow(fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",])
 fixed.functions.data$delta.PKG <- 0
 fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" f", ]$mean.PKG,number.of.rows)
@@ -84,7 +84,8 @@ fixed.functions.data$delta.PKG <- pmax(fixed.functions.data$delta.PKG, 0)
 ggplot(fixed.functions.data[ fixed.functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
   labs(title="Energy consumption of BBOB functions, length=128, fixed-size data structure", y="PKG Energy (Joules)", x="function") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1,size=15))+ scale_y_log10()
+ggsave("img/energy-bbob-fixed-size-128.png", width=8, height=4, dpi=300)
 
 
 ## ----evostar.bbob.compares, echo=F, message=F, warning=F, fig.height=5, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales"----
@@ -95,7 +96,7 @@ functions.128 <- rbind(fixed.functions.data[ fixed.functions.data$size==128,], f
 
 ggplot(functions.128[ functions.128$type==" f",], aes(x=work, y=delta.PKG, color=data.structure)) +
   geom_boxplot( position="dodge") +
-  labs(title="array vs. vector, length=128, float", y="PKG Energy (Joules)", x="function") +
+  labs(title="Array (variable) vs. vector (fixed size), length=128, float", y="PKG Energy (Joules)", x="function") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()+ theme(legend.position="none")
 
 ggplot(functions.128[ functions.128$type==" d",], aes(x=work, y=delta.PKG, color=data.structure)) +
