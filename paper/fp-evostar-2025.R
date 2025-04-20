@@ -59,7 +59,8 @@ functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
 ggplot(functions.data[ functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
   labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1,size=15)) + scale_y_log10()
+ggsave("img/bbob-energy-128.png", width=8, height=4, dpi=300)
 
 ggplot(functions.data[ functions.data$size==256,], aes(x=work, y=delta.PKG, color=type)) +
   geom_boxplot() +
