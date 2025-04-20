@@ -184,6 +184,7 @@
 }
 
 .reveal blockquote {
+    font-size: var(--r-heading2-size);
   display: block;
   position: relative;
   width: 70%;
