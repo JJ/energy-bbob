@@ -3,14 +3,15 @@ library(ggplot2)
 library(ggthemes)
 library(dplyr)
 
-base.variable.data <- read.csv("data//evostar25-generation-5-Nov-07-30-15.csv")
+base.variable.data <- read.csv("data/evostar25-generation-5-Nov-07-30-15.csv")
 
 base.variable.data$size <- as.factor(base.variable.data$size)
 base.variable.data$type <- as.factor(base.variable.data$type)
 ggplot(base.variable.data, aes(x=PKG, y=seconds, color=type, shape=size)) +
-  geom_point() +
-  labs(title="Energy consumption of BBOB functions", x="PKG Energy (Joules)", y="seconds") +
+  geom_point(size=4,alpha=0.5) +
+  labs(title="Chromosome generation, float vs. double", x="PKG Energy (Joules)", y="seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("img/base-variable-data.png", width=8, height=4, dpi=300)
 
 base.variable.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds), sd.seconds=sd(seconds), mean.PKG = mean(PKG), sd.PKG = sd(PKG)) -> summary.base.variable.data
 
@@ -28,9 +29,10 @@ base.variable.data.128$work <- rep("vector", nrow(base.variable.data.128))
 base.data.128 <- rbind(base.fixed.data, base.variable.data.128)
 
 ggplot(base.data.128, aes(x=PKG, y=seconds, color=type, shape=work)) +
-  geom_point() +
-  labs(title="Energy consumption of BBOB functions, vector vs. array", x="PKG Energy (Joules)", y="seconds") +
+  geom_point(size=4,alpha=0.5) +
+  labs(title="Chromosome generation, vector vs. array", x="PKG Energy (Joules)", y="seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("img/base-data-structure.png", width=8, height=4, dpi=300)
 
 base.fixed.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds), sd.seconds=sd(seconds), mean.PKG = mean(PKG), sd.PKG = sd(PKG)) -> summary.base.fixed.data
 
