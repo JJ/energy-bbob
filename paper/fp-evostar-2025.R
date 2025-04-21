@@ -96,7 +96,7 @@ functions.128 <- rbind(fixed.functions.data[ fixed.functions.data$size==128,], f
 
 ggplot(functions.128[ functions.128$type==" f",], aes(x=work, y=delta.PKG, color=data.structure)) +
   geom_boxplot( position="dodge") +
-  labs(title="Array (variable) vs. vector (fixed size), length=128, float", y="PKG Energy (Joules)", x="function") +
+  labs(title="Array (fixed) vs. vector (variable), length=128, float", y="PKG Energy (Joules)", x="function") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1,size=15)) + scale_y_log10()
 ggsave("img/energy-bbob-fixed-vs-variable-128.png", width=8, height=4, dpi=300)
 
