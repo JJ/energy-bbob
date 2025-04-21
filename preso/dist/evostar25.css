@@ -11,7 +11,7 @@
 :root {
   --r-background-color: #111;
   --r-main-font: "Pompiere", sans-serif;
-  --r-main-font-size: 32px;
+  --r-main-font-size: 40px;
   --r-main-color: #eee;
   --r-block-margin: 20px;
   --r-heading-margin: 0 0 20px 0;
@@ -23,7 +23,7 @@
   --r-heading-text-shadow: none;
   --r-heading-font-weight: normal;
   --r-heading1-text-shadow: none;
-  --r-heading1-size: 3.77em;
+  --r-heading1-size: 2.81em;
   --r-heading2-size: 2.11em;
   --r-heading3-size: 1.55em;
   --r-heading4-size: 1em;
