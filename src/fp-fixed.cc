@@ -14,8 +14,6 @@
 
 //-------------------------------------------------------------------
 
-const std::size_t POPULATION_SIZE = 40'000;
-
 enum class functions : std::size_t {
     bent_cigar = 0,
     different_powers = 1,
@@ -32,20 +30,17 @@ enum class functions : std::size_t {
 
 enum class types { f, d, l, none };
 
-std::mt19937_64 engine;
-
 //-------------------------------------------------------------------
 
-std::tuple<functions, std::size_t, std::size_t, types>
+std::tuple<functions, types>
 parser(int argc, char **argv)
 {
-    std::size_t individual_size = 128, population_size = POPULATION_SIZE;
     functions function = functions::none;
-    int option = 0, seed = std::random_device()();
+    int option = 0;
     types type = types::f;
     std::string_view function_name;
 
-    while ((option = getopt(argc, argv, "f:i:hp:s:t:")) != -1)
+    while ((option = getopt(argc, argv, "f:ht:")) != -1)
         switch (option)
         {
             case 'f':
@@ -79,12 +74,8 @@ parser(int argc, char **argv)
                        "katsuura|none|rastigin|rosenbrock|schaffers|"
                        "schwefel|sharp_ridge|sphere) (required)\n"
                     << "\t-h show this help             (optional)\n"
-                    << "\t-i individual size            (optional)\n"
-                    << "\t-s random seed                (optional)\n"
                     << "\t-t (float|double|long_double) (required)\n";
                 exit(EXIT_SUCCESS);
-            case 'i': individual_size = atoi(optarg); break;
-            case 's': seed = atoi(optarg); break;
             case 't':
                 switch (optarg[0])
                 {
@@ -99,30 +90,25 @@ parser(int argc, char **argv)
                 break;
         }
 
-    if (type == types::none)
-    {
-        std::cerr << argv[0] << ": type parameter required!\n";
-        exit(EXIT_FAILURE);
-    }
-
-    engine.seed(seed);
-
-    return {function, individual_size, population_size, type};
+    return {function, type};
 }
 
 //-------------------------------------------------------------------
 
 template<typename T>
-T work(functions function,
-       std::size_t individual_size,
-       std::size_t population_size)
+T work(functions function)
 {
-    using individual = std::vector<T>;
+    const std::size_t INDIVIDUAL_SIZE = 100, POPULATION_SIZE = 40'000;
+    using individual = std::array<T, INDIVIDUAL_SIZE>;
     using population = std::vector<individual>;
 
     // initialize population
-    population p(population_size, individual(individual_size));
+    std::cout << "INDIVIDUAL_SIZE = " << INDIVIDUAL_SIZE << '\n'
+              << "POPULATION_SIZE = " << POPULATION_SIZE << '\n';
+    population p(POPULATION_SIZE);
     std::uniform_real_distribution<T> domain(-5.0, +5.0);
+    std::mt19937_64 engine;
+    engine.seed(std::random_device()());
     auto rng_domain = std::bind(domain, std::ref(engine));
     for (auto &i : p)
         for (auto &gene : i)
@@ -132,10 +118,10 @@ T work(functions function,
     {
         // no evaluation must avoid unused code removal
         std::uniform_int_distribution<std::size_t> pop_index(
-            0, population_size - 1);
+            0, POPULATION_SIZE - 1);
         auto rng_pop = std::bind(pop_index, std::ref(engine));
         std::uniform_int_distribution<std::size_t> ind_index(
-            0, individual_size - 1);
+            0, INDIVIDUAL_SIZE - 1);
         auto rng_ind = std::bind(ind_index, std::ref(engine));
         return p[rng_pop()][rng_ind()];
     }
@@ -192,24 +178,22 @@ T work(functions function,
 
 int main(int argc, char **argv)
 {
-    auto [function, individual_size, population_size, type] =
-        parser(argc, argv);
 
-    std::cout << "individual_size = " << individual_size << '\n'
-              << "population_size = " << population_size << '\n';
+    auto [function, type] =
+        parser(argc, argv);
 
     long double result = 0.0;
 
     switch (type)
     {
         case types::f:
-            result = work<float>(function, individual_size, population_size);
+            result = work<float>(function);
             break;
         case types::d:
-            result = work<double>(function, individual_size, population_size);
+            result = work<double>(function);
             break;
         case types::l:
-            result = work<long double>(function, individual_size, population_size);
+            result = work<long double>(function);
             break;
         default:
             std::cerr << "unknown type\n";

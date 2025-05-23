@@ -33,4 +33,26 @@
 
 # Latex
 auto/
-.Rproj.user
+
+
+
+figure/
+*.log
+*.pdf
+*.bbl
+*.concordance.tex
+*.synctex.gz
+*.tex
+
+# VScode
+.vscode/
+
+# R
+.Rproj.user/
+*.Rproj
+.Rhistory
+.RData
+
+# emacs
+*~
+

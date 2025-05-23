@@ -53,3 +53,20 @@ do for [type in types] {
     set output stem.'-'.type.'.svg'
     plot '<(head -n1 '.file.'; grep \;'.type.' '.file.')' using (1):(column('diff')):(0.75):(column('function')) with boxplot linecolor variable notitle, value('diff_'.type.'_mean') w l lc 0 lt 1 lw 2 t 'mean', value('diff_'.type.'_median') w l lc 0 lt 0 lw 2 t 'median'
 }
+
+#-----------------------------------------------------------------------------
+# multiplot by type
+#-----------------------------------------------------------------------------
+
+set output stem.'-types.svg'
+set xtics rotate by 45 right scale 0
+set yrange[diff_min:diff_max]
+unset y2label
+set multiplot layout 1,3 margins 0.10,1,0.95,0.15 spacing 0,0
+do for [type in types] {
+    set x2label type
+    plot '<(head -n1 '.file.'; grep \;'.type.' '.file.')' using (1):(column('diff')):(0.75):(column('function')) with boxplot linecolor variable notitle, value('diff_'.type.'_mean') w l lc 0 lt 1 lw 2 t 'mean', value('diff_'.type.'_median') w l lc 0 lt 0 lw 2 t 'median'
+    unset ylabel
+    #unset ytics
+}
+unset multiplot

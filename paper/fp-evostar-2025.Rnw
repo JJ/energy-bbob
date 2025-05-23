@@ -1,0 +1,262 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{color}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\newcommand{\pinp}{\texttt{pinpoint}}
+\newcommand{\lik}{\texttt{likwid}}
+
+\begin{document}
+\title{Measuring energy consumption of BBOB fitness functions}
+
+\author{
+ Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Gustavo Romero López\inst{1}\orcidID{0000-0002-5498-7512} \and Mario García-Valdez\inst{2}\orcidID{0000-0002-2593-1114}
+}
+\institute{Department of Computer Engineering, Automatics and Robotics and CITIC University of Granada, Granada, Spain \and
+Department of Graduate Studies, National Technological Institute of Mexico, Tijuana, Mexico\\
+\email{jmerelo@ugr.es, gustavo@ugr.es, mario@tectijuana.edu.mx}
+}
+
+\maketitle
+
+\begin{abstract}
+Making software greener is a process that includes identifying the functions that consume the most energy, developing a methodology that can measure precisely that energy consumption and eventually measuring that energy under different design decisions and circumstances to be able to, eventually, produce best practices for minimizing said consumption. In this paper we are focusing on well-known floating-point fitness functions: some functions included in the black box optimization benchmark that cover all different types of functions under study. In general, these fitness functions will be the single operation that consumes the most energy; this is why in this paper we use them to test a methodology that is able to measure the energy consumed by their implementation in a low-level language C++. We test different single-element representations (single and double precision) as well as individual level representation (fixed size vs. variable size), drawing conclusions on the adequacy and accuracy of the methodology as well as which combination of the above elements would consume the least.
+
+
+\keywords{Green computing, metaheuristics, energy-aware computing, evolutionary algorithms}
+\end{abstract}
+
+\section{Introduction}
+
+We live in an era where obtaining better performance through faster hardware that besides consumes less power is no longer easy; newer processors rely on an array of power management techniques that include switching off parts of the processor that are unused, changes in frequency, as well as architectural changes that include asymmetric cores in the processor, some of them optimized for performance and others for energy consumption \cite{haj2018power}. On top of those techniques, optimization through software is still possible at many levels, through the use of software engineering techniques or at the evolutionary algorithm level, trying to create better ways of sampling the solution space so that better solutions are found faster. However, energy consumption is also a concern in the area of evolutionary algorithms and has been for many years already \cite{novoa2021measuring,garg2023analyzing,jamil2022analyzing,10.1007/978-3-319-45823-6_51,fernandez2019}.
+
+% Im not sure about the first sentence, the M4 chip is faster and consumes less power than the M1 chip.
+% But I think the point is that the performance gains are not as big as they used to be.
+% Maybe make that more explicit? - Mario
+% Changed it to "easy" - JJ
+% That does it - Mario
+
+Reducing the amount of energy consumed by any kind of program is simply good engineering, but in the case of evolutionary algorithms we can also say that implementation matters \cite{merelo2011implementation} also in the sense of reducing the carbon footprint of our experiments. In many cases, we can find insights on the inner working of evolutionary algorithms, discover new energy-neutral operators or methodologies, and in general consider algorithms and their implementations in a more holistic way in order to create the best implementation available for our experiments.
+
+And while there are many different tools to diagnose performance with high granularity  and improve it at many different levels, making evolutionary algorithms "greener" by improving energy consumption is still a challenging task that needs research at many levels: from a methodology that measures energy consumption for specific functions, to best practices or even rules of thumb that can be applied to specific implementations to reduce their carbon footprint.
+
+A general rule that will almost always apply is that low-level languages will be able to create executable programs that consume less than interpreted languages. Measuring the precise difference or optimizing consumption in high-level languages might still be interesting \cite{aquino2024energy}, but in fact low level languages will use power more efficiently than other, higher-level, languages.
+
+And they do so for a number of reasons. The first one is that compilers generate operating system and architecture specific code including some advanced complex vectorial instructions that will be faster and consume less energy. Interpreters, even those with just-in-time (JIT) compilers, will have a harder time creating machine code that couples so tightly with the hardware it is run in. The second is that on top of that machine-level optimization that cuts both ways, performance and consumption, it examines code globally and can apply optimizations that go from the simple, eliminating code that is not actually run (that would consume a minimal amount of energy when loaded, and due to its memory footprint), to the very complex, combining sequences of instructions and even loops in ways that are known to increase performance and, in many cases, reduce energy consumption too. Finally, through compiler flags the user can force a number of optimizations whose effect is not obvious in advance or that need to be tested for specific workloads.
+
+In fact, this means that it is very complicated to know in advance, just looking at the source code, how much is it going to consume or whether one function is going to consume more than another, or one implementation more than another. A rule of thumb of "more instructions, more consumption" needs not hold, since the compiler can merge those instructions and create code that runs faster and consumes less energy. This is why, in this paper, we have set out to develop a methodology that is able to measure the energy consumption of floating-point fitness functions, and then to effectively measure it for a number of popular fitness functions, a subset of the well-known Black Box Optimization Benchmarking (BBOB) test suite \cite{hansen2010real}. Through measurement of the energy consumption of those functions, our mid-term objective is to be able to find out what makes a floating-point optimization function consume more or less and use this knowledge to create a version of those functions that is optimized from the point of view of power and energy consumption.
+
+The rest of the paper is organized as follows: next we will present the state of the art in measurement of energy consumption in C++ and evolutionary algorithms. We will then present the methodology we are using in Section \ref{sec:methodology} and will apply and show the results in Section \ref{sec:measurements}. These will be discussed in Section \ref{sec:discuss}, where we will also present our conclusions.
+
+\section{State of the art}
+
+Floating-point operations are a major contributor to energy spending in numerical applications that require a wide range of values using double- or single-precision formats. Experimental evidence shows that in FP-intensive applications, FP operations account for as much as 50\% of the energy consumed by a core and its associated memory \cite{tagliavini2017transprecision}. However, many applications in fields such as computer vision, multimedia, soft computing and machine learning work with data that is inherently imprecise or can yield results that are not strictly deterministic. Researchers have exploited these  soft computing requirements to relax the precision requirements of FP operations, thus achieving considerable reductions in energy consumption \cite{khudia2014harnessing}.
+
+Sampson et al. \cite{sampson2011enerj} developed EnerJ, an extension to Java that included approximate data types together with a hardware architecture providing explicit support to approximate storage and computations. EnerJ uses type qualifiers to designate data types that tolerate approximate computations. With these qualifiers, the system automatically maps approximate variables to low-power storage, utilizes energy-efficient operations, and selectively applies optimized algorithms provided by the programmer to reduce power consumption further.
+
+In C++, several strategies and tools have been developed to improve energy efficiency in computing, specifically around floating-point (FP) operations. For instance, FloatX \cite{flegar2019floatx} is a header-only C++ library that allows developers to simulate floating-point numbers with custom bit lengths for the mantissa and exponent, essentially creating floating-point formats with lower precision than standard IEEE formats (binary32 and binary64), this is useful for testing how much precision can be reduced in calculations without significantly affecting accuracy.
+
+In this regard, Tagliavini et al. \cite{tagliavini2017transprecision}  introduced an approach called {\sf transprecision computing} to make ultra-low-power (ULP) embedded platforms more energy-efficient. They designed a custom floating-point system with two new data types: {\tt binary8}, an 8-bit format with lower precision (using only a 3-bit mantissa), and {\tt binary16alt}, a 16-bit format with a wider dynamic range (using an 8-bit exponent). The format of these new data types can be seen in Figure \ref{fig:transprecision}.
+\begin{figure}
+\caption{Tagliavini proposed floating-point types.}
+\centering
+\begin{tabular}{p{4cm}p{0.5cm}p{8cm}}
+\includegraphics[height=14mm]{binary8} & & \includegraphics[height=14mm]{binary16alt} \\
+{\hspace{1cm} binary8 \hspace{1cm}} & & {\hspace{2cm} binary16alt \hspace{2cm}} \\
+\end{tabular}
+\label{fig:transprecision}
+\end{figure}
+
+The researchers created a C++ library to test their system and ran experiments on specialized transprecision hardware. Their results showed that this method reduced energy consumption by up to 30\%. They also found that 90\% of FP operations could be scaled down to use either 8-bit or 16-bit formats safely. Additionally, by optimizing precision and using vectorization, they reduced average execution time by 12\% and memory usage by 27\%. In this context, vectorization refers to a technique where multiple floating-point operations are performed simultaneously by taking advantage of a processor’s vector processing capabilities \cite{liang2017vectorization}. Vectorization is a case of parallelization where the compiler transforms the processing of a set of scalar values into a single instruction that operates simultaneously on a several of them.
+
+\section{Methodology}
+\label{sec:methodology}
+
+We will follow a methodology that has been already used in several other papers \cite{lion24,zig1,zig2,icsoft23}. The tool used for energy profiling is called {\sf pinpoint} \cite{pinpoint}, a multiplatform tool that taps into the RAPL API or, in the case of other platforms or operating systems, different APIs, offering a single command for measuring how much energy a process consumes. Since {\sf pinpoint} runs with a command, synchronization is not an issue, yielding system-wide energy consumption {\em while a process is running}.
+
+In general, it is going to be impossible to separate everything that is happening on the system and the resources it is using from the specific resources our process is using; the maximum granularity we can aspire in energy profiling is to precisely measure the energy that has been consumed by the system starting at the same precise moment our process is starting, and finishing at the moment it is done.
+This is why our methodology needs an additional step to register the actual energy consumed by the specific workload we are interested in. In order to do that, in this paper we will follow the same methodology as in other papers such as \cite{wivace23}: measure a common function as baseline; averages obtained here will be subtracted from the time and energy consumed by the functions we want to study later.
+%  Lets see if I got this right, pinpoint measures the energy of the whole process, but we need the energy on one function, so we need to subtract the energy of the rest of the process? - Mario
+%  Correct. is it clearer now? - JJ
+%  Yes! - M
+
+Effectively, what we will use as baseline is chromosome generation. After all, you need to generate chromosomes to apply any kind of function to them. Time consumed in generation, however, is not critical in an evolutionary algorithm since it is done only once at algorithm start-up, so we will measure it together with the energy consumed by the whole system. Besides using this as a baseline, this will give us also a measure of energy consumed by different types of data structures.
+
+% I was seeing a guy in Youtube that was optimizing a hash function for speed in C, he went as far as
+% seeing in a very cool website, the assembly code generated by the compiler, and then, he was able to optimize the code with
+% those hints. Maybe we should make clear at what level of programming cunstructs we want to reach to optimiza for
+% performance. For instance, stating that we are only comparing data types, or compiler switches etc. - Mario
+% That is the long-term intention, but not for this paper - JJ
+
+What we will be measuring here is called the package (PKG) consumption \cite{khan2018rapl}. This package includes CPU and memory, essentially all energy consumed by the system excluding peripherals. Depending on the specific CPU that is being used, there are sensors that can break apart energy consumed by the different CPU {\em planes} and memory. This is not the focus of this paper, so we will not take it into account. On the other hand, this measurement includes all floating-point operations performed within the CPU. This means that we are grouping together memory and CPU consumption; however, other measurements so far have shown memory consumption to be first a small proportion of that consumed by the CPU and then mostly proportional to CPU consumption, at least for these workloads where operating on memory-stored quantities is more important than creating new data structures or moving them around; so the PKG sensor in the RAPL suite is a good measurement for our purposes.
+
+We will perform all experiments in a Linux system {\tt 5.15.0-124-generic \#134~20.04.1-Ubuntu SMP} running in an {\em AMD Ryzen 9 3950X} with 16 cores, although we will be using a single one, since we will be using single-threaded programs. The compiler we will use is {\tt g++ 10.5.0}\footnote{This is admittedly not the latest version, but the most modern one that can be run in a Ubuntu 20.04.}. All programs have been compiled with the flags {\tt -flto -march=native -O3 -Wall -std=c++2a}, that is, link-time optimization, native architecture, third level of optimization (which is the maximum available, any number bigger than 3 will not result in additional optimization) is compiler-dependent and might result in worse performance) that instructs the compiler to use all reasonable machine-level optimizations, all warnings, and the C++ 20 standard. In general, what we are telling the compiler is to use its own heuristics to create the best possible code for the architecture we are running on, as well as the most current standard it is able to process \footnote{Which is not the most current one, however. We do not think that the specific standard will have influence on the ranking of results, though.}.
+
+<<evostar.bbob.setup, echo=F, message=F, fig.height=4, fig.cap="Time in seconds for every experiment generating 40K chromosome vectors with 128,256,512 dimensions, using float or double for every one of them">>=
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+
+base.variable.data <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
+
+base.variable.data$size <- as.factor(base.variable.data$size)
+base.variable.data$type <- as.factor(base.variable.data$type)
+ggplot(base.variable.data, aes(x=PKG, y=seconds, color=type, shape=size)) +
+  geom_point() +
+  labs(title="Energy consumption of BBOB functions", x="PKG Energy (Joules)", y="seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+base.variable.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds), sd.seconds=sd(seconds), mean.PKG = mean(PKG), sd.PKG = sd(PKG)) -> summary.base.variable.data
+@
+
+The code use, which is available from this paper repository (\url{https://github.com/JJ/energy-bbob}) has been adapted from the BBOB code \cite{hansen2010comparing} by using C++ generics to employ the same code for {\sf float} and {\sf double} types for each dimension. Since {\sf doubles} take twice as many bytes as {\sf floats}, simply going through them should have an impact on consumed energy. By default, {\sf BBOB} is programmed for {\sf doubles}; however, using float or double should not have any measurable impact on evolutionary algorithm performance. BBOB tries to reach a value that is $10^{-8}$ from the target; this is close to {\sf float} precision (which is 6 digits without round-trip errors, 7 with some errors, 8 attainable depending on the values codified), so we could not really use {\sf float} to represent the dimension of BBOB functions. However, we are using BBOB functions as representative of floating-point fitness function, and assuming the type used to represent function values is a choice that is under control of the researcher. We are also trying to measure what is the difference in energy consumption between using {\sf float} and {\sf double}, so that this enters into consideration when creating an EA experiment. Theoretically, reducing precision should reduce the amount of energy used; many machine learning implementations follow precisely that path \cite{cambier2020shifted,gernigon2023low}. However, in our specific case we need to check what are the differences and if using one or another precision results in an effective reduction of energy consumption.
+In both cases, we will initially use the variable-size {\sf vector} data structure from the standard library.
+
+% This is similar to strategies used for reducing the energyy consumption in machile learging,
+% where the precision of the data is reduced to save energy.
+% But I think in those cases they go from 32 to 16 bits or even 8 bits. - Mario
+% Added some explanation in that sense. Maybe a reference would help - JJ
+
+The other variable we are changing in these experiments is the number of dimensions, which we call {\sf size} here. We will start at 128, and double up to 512. Again, the dimensions used in BBOB stop at 100, but increasing the size will be useful to be able to measure differences in time and energy consumed with more precision.
+
+As is usual, we have generated 40K random chromosomes, using the RNG that consumes the least, {\tt mt19937\_64} \cite{mersennetwister}, and repeated runs for every combination 30 times. The results are shown in Figure \ref{fig:evostar.bbob.setup}. What we see in this figure is that the spread in energy consumption is, as usual, much bigger than the spread in running time, which has been found elsewhere and is expected. The energy a program draws from the system depends on the ambient and the CPU temperature, as well as the other programs that are running, the {\em split} observed between 10 Joules and around 14 joules for the floating-point experiments with size = 512 is not surprising, and is one of the reasons why we are running 30 experiments in the first place. Other than that, what we see is that except for this case, energy consumed is not so different between float and double; while the amount of time it takes is, they consume roughly the same, meaning the power drawn by double precision arithmetic is {\em lower} than for single precision for every operation. We need to consider, however, that this is a baseline measurement that will be influenced by the system overhead; we will need to measure the actual functions to confirm these measurements.
+
+% Other papers have observed differences in energy consumption affected by the CPU temperature, I think this is more
+% important than the ambient temperature, also the temperature of the CPU increases as it its working  - Mario
+% Added the CPU temperature - JJ
+
+<<evostar.bbob.fixed, echo=F, message=F, fig.height=4, fig.cap="Time in seconds for every experiment generating 40K array or vector chromosomes with 128 elements, using float or double for every one of them">>=
+base.fixed.data <- read.csv("../data/fixed-evostar25-generation-5-Nov-07-37-13.csv")
+
+base.fixed.data$size <- as.factor(base.fixed.data$size)
+base.fixed.data$type <- as.factor(base.fixed.data$type)
+base.fixed.data$work <- rep("array", nrow(base.fixed.data))
+
+base.variable.data.128 <- base.variable.data[base.variable.data$size == 128,]
+base.variable.data.128$work <- rep("vector", nrow(base.variable.data.128))
+
+base.data.128 <- rbind(base.fixed.data, base.variable.data.128)
+
+ggplot(base.data.128, aes(x=PKG, y=seconds, color=type, shape=work)) +
+  geom_point() +
+  labs(title="Energy consumption of BBOB functions, vector vs. array", x="PKG Energy (Joules)", y="seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+base.fixed.data %>% group_by(size, type) %>% summarise(mean.seconds=mean(seconds), sd.seconds=sd(seconds), mean.PKG = mean(PKG), sd.PKG = sd(PKG)) -> summary.base.fixed.data
+@
+
+We are, however, also interested in the actual type we use to represent this number vector if it has any influence in the energy it consumes. C++ includes some fixed-size types, such as {\sf array}. From the point of view of programming, this needs the array size to be constant, which means that you need to generate and compile different sources for every size; this is why we have run an experiment just for size = 128. This is shown in Figure \ref{fig:evostar.bbob.fixed}; colors again represent the type used for every number, while shape varies with the kind of data structures, fixed-sized array as dots, and variable-sized vector as triangles. There is a clear difference between the two, in running time as well as energy consumed, with the former consuming almost one eighth of the joules and taking almost half of the time. Again, energy consumed by single and double precision is almost the same, differing only in the time it takes. Since the only operation we are applying here is random number generation, this would mean that generating random doubles consumes the same amount of energy as generating single-precision numbers\footnote{Since the RNG used is for 64 bits, it is very likely that what it is actually doing is {\em always} generating that amount of bits and then picking 32 for single-precision {\sf floats}.}.
+
+We should emphasize that this is the baseline measurement. We will measure the energy consumed by a selected sample of BBOB functions next.
+
+\section{Measuring energy consumption of BBOB functions}
+\label{sec:measurements}
+
+<<evostar.bbob.functions, echo=F, message=F, warning=F, fig.height=4, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales in every chart. The boxplot is missing when the application of the function takes approximately the same time than generating it.">>=
+functions.data <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+functions.data <- functions.data[functions.data$work != "none",]
+number.of.rows <- nrow(functions.data[ functions.data$size==128 & functions.data$type==" f",])
+functions.data$delta.PKG <- 0
+functions.data[ functions.data$size==128 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==128 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 128 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==256 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==256 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 256 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==512 & functions.data$type==" f",]$delta.PKG <- functions.data[ functions.data$size==512 & functions.data$type==" f",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 512 & summary.base.variable.data$type==" f", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==128 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==128 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 128 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==256 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==256 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 256 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data[ functions.data$size==512 & functions.data$type==" d",]$delta.PKG <- functions.data[ functions.data$size==512 & functions.data$type==" d",]$PKG - rep(summary.base.variable.data[ summary.base.variable.data$size == 512 & summary.base.variable.data$type==" d", ]$mean.PKG,number.of.rows)
+
+functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
+
+ggplot(functions.data[ functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=128", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()
+
+ggplot(functions.data[ functions.data$size==256,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=256", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
+
+ggplot(functions.data[ functions.data$size==512,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=512", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
+@
+
+As mentioned, the Black Box Optimization Benchmark \cite{hansen2010comparing} proposes a set of fitness function that act on floating-point chromosomes, 24 of them, grouped in several subsets: separable, low or moderate conditioning, high conditioning or unimodal and finally multimodal functions with weak or "adequate" global structure. Since there are 5 subsets, we have picked up some from each one: {\sf sphere} and {\sf Rastrigin} from the first, {\sf Rosenbrock} from the second, {\sf discus}, {\sf bent\_cigar}, {\sf different\_powers} and {\sf sharp\_ridge} from the third, {\sf schaffers} from the fourth and finally {\sf katsuura} and {\sf schwefel} from the last one. These are simply representative functions chosen randomly. We think they are a good, non-biased representation of the whole set of functions, at least from the point of view of energy consumption.
+
+As in previous papers, we have applied the functions to the 40K chromosomes previously generated. In Figure \ref{fig:evostar.bbob.functions} we show a boxplot of the energy consumed by each function, once the average energy used to generate the chromosomes has been subtracted, and organized by chromosome size, with energy consumed by {\sf float} and {\sf double} shown in different colors. At the left chart we can see that some glyphs for {\sf float} are missing; this is simply because there is basically no difference between the energy consumed by generation and the one needed to compute the function; this is probably due to the fact that they use essentially the same code so that the delta in energy consumption is optimized away; this happens with the {\sf bent\_cigar}, {\sf different\_powers}, {\sf discus} and {\sf schwefels} BBOB functions.
+An alternative explanation is simply that energy consumption is less than 0.01, which is the maximum precision the RAPL measurements that {\sf pinpoint} uses has. As a matter of fact, the measured energy consumption for the same functions using {\sf double} is barely above that precision level; {\sf bent\_cigar} average for {\sf double} is less than 0.01. Whatever reason, energy consumption for these functions is negligible
+
+Another interesting pattern is that the range of energy consumption is so big that we had to use a logarithmic scale to represent it. There is a function that is clearly off-scale, which is {\sf katsuura}, consuming energy that is an order of magnitude above the next ones {\sf rastrigin}, {\sf different\_powers}, {\sf schwefel} and {\sf schaffers}. The rest do not consume so much power, and there is even an extreme case, {\sf rosenbrock}, that shows 0 consumption for both {\sf float} and {\sf double} when length=128 and is the only one that shows 0 consumption for double (or for any kind of single-individual data structure) when length = 128.
+
+<<evostar.bbob.fixed.functions, echo=F, message=F, warning=F, fig.height=4, fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, float or double. Please note $y$ scale is logarithmic">>=
+fixed.functions.data <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+number.of.rows <- nrow(fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",])
+fixed.functions.data$delta.PKG <- 0
+fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" f",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" f", ]$mean.PKG,number.of.rows)
+fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" d",]$delta.PKG <- fixed.functions.data[ fixed.functions.data$size==128 & fixed.functions.data$type==" d",]$PKG - rep(summary.base.fixed.data[ summary.base.fixed.data$size == 128 & summary.base.fixed.data$type==" d", ]$mean.PKG,number.of.rows)
+fixed.functions.data$delta.PKG <- pmax(fixed.functions.data$delta.PKG, 0)
+
+ggplot(fixed.functions.data[ fixed.functions.data$size==128,], aes(x=work, y=delta.PKG, color=type)) +
+  geom_boxplot() +
+  labs(title="Energy consumption of BBOB functions, length=128, fixed-size data structure", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ scale_y_log10()
+@
+
+It is difficult to claim one individual data structure being more efficient energy-wise than the other. For the smaller size it is more or less true that {\sf float} is better than {\sf double} except for the {\sf sphere} function. When the size of the chromosome is increased, however, there are several cases when that happens, notable {\sf sharp\_edge}; it shows a slight advantage also in the case of {\sf bent\_cigar}, which is clearer for size = 512. However, two of the more {\em heavy-weight} functions, {\sf rastrigin} and {\sf schaffers}, do not show any significant difference for these sizes, leading us to the preliminary conclusion than when there is a choice, choosing single over double precision will lead only to gains in very specific cases, namely, the {\sf katsuura} function \cite{katsuura1991continuous}\footnote{Please note that there is an error in the implementation of this function published by BBOB that will prevent it from yielding the correct value. This, however, is unrelated to the amount of energy it consumes or this fact.}.
+
+But we have tested an additional, fixed-size, data structure, an {\sf array} in C++. We show results for size = 128 in Figure \ref{fig:evostar.bbob.fixed.functions}. The first conclusion we can draw from comparing it with \ref{fig:evostar.bbob.functions} is that there is no case in which evaluating the function takes {\em nothing}; all cases show a certain amount of energy consumption, even if it is on the order of $10^{-1}$. And again, it is difficult to find any kind of advantage of using a data structure with less bytes (single precision) over another with more bytes; it is only better in a single case, and only slightly and non-significantly so, in the case of {\sf bent\_cigar}.
+
+<<evostar.bbob.compares, echo=F, message=F, warning=F, fig.height=5, fig.show="hold", fig.cap="PKG energy consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales">>=
+fixed.functions.data$data.structure <- "Fixed"
+functions.data$data.structure <- "Variable"
+
+functions.128 <- rbind(fixed.functions.data[ fixed.functions.data$size==128,], functions.data[ functions.data$size==128,])
+
+ggplot(functions.128[ functions.128$type==" f",], aes(x=work, y=delta.PKG, color=data.structure)) +
+  geom_boxplot( position="dodge") +
+  labs(title="array vs. vector, length=128, float", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10()+ theme(legend.position="none")
+
+ggplot(functions.128[ functions.128$type==" d",], aes(x=work, y=delta.PKG, color=data.structure)) +
+  geom_boxplot( position="dodge") +
+  labs(title="array vs. vector, length=128, double", y="PKG Energy (Joules)", x="function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_log10() + theme(legend.position="none")
+@
+
+But we are more interested in comparing it with the variable-size {\sf vector} data structure, which we do in Figure \ref{fig:evostar.bbob.compares}, for single precision on the left-hand side, double on the right. It is hard to see how the fixed size data structure could be better for {\sf float}, since the measurement is 0 for the variable-size data structure, the {\sf vector}, in some cases. But even in cases where it is not 0 it is almost never better. A small (but significant) advantage for the more heavyweight functions, that is all. But let us remember that {\sf double} arrays were better than these and let us compare the right-hand side panel. Again, in most cases (except for {\sf katsuura}), {\sf array}s are better, consuming less energy, or almost the same. So, this adds to our previous preliminary conclusion that double precision is better by saying that double precision {\sf vector}s are in most cases the data structure that consumes the least.
+
+\section{Discussion and conclusions}
+\label{sec:discuss}
+
+In this paper, we have applied a methodology that has been proved to work correctly for this line of work so far, working with interpreted and compiled functions: splitting the measurements in baseline measurements for generation of chromosomes and then measuring functions allows us to check the actual consumption of the functions (or operators in other papers) we are interested in.
+
+This methodology fails, however, when using advanced compilers that look globally at the code and generate the best machine code possible for performance. This shows in the measurements, when the function under measurement is simply folded into the chromosome generation loop using complex machine code instructions so that it is impossible to separate one from the other, resulting in 0 energy consumption for it if it is simple enough (notably in the case of {\sf rastrigin}). This evidently does not mean that the function is not being executed or not consuming anything in the general case; only that we need to change baseline measurements or change methodology in some way so that the compiler actually generates independent code for those kind of functions and we can measure it or any other way so that they consume an amount of energy that can be actually measured.
+
+Because another source of lack of accuracy is the energy consumed by the function under study as a percentage of total energy consumed. Some studies \cite{khan2018energy} indicate that the accuracy of the RAPL sensors might be around 5\%. This means that if the function we are measuring consumes less than 5\% of the total energy measured, it becomes a rounding error. That is an issue we have faced in the measurements reported above: some functions applied to floating-point vectors are so fast that it takes around 20 times more to generate them and build the data structures that hold them in a population than it takes to actually evaluate them. That is good news from one point of view, that is, the fact that they are so optimized that they consume next to nothing, but from our point of view it implies that they are not good fitness functions to actually measure the impact of different decisions on energy measurements or eventually to become a target for optimization. In the future, we will try to vet functions under study so that they actually present a challenge from this point of view.
+
+With the current methodology, we have at least been able to ascertain than changing representation of individual values from double to float will not have a big impact, or at least one that can offset the disadvantage of several digits of precision; in some cases, it can even result in worse carbon footprint, since most floating-point operations in low level languages, at least from what we can measure in C++, are optimized for {\sf double}. Using fixed-size data structures, on the other hand, gives us a mixed bag of results. It will certainly lead to no advantage in the fitness function itself; but any evolutionary algorithm also needs to allocate memory, and in operations that include it, like creating the chromosome, fixed-size data structures like C++'s {\sf array} are much faster and also consume less energy, as shown in Figure \ref{fig:evostar.bbob.fixed}, almost 1/8th of the energy, and that includes overhead by the system at large.
+
+But this fact, along with the problems with measuring precisely energy consumed by the functions we are interested in, inspires our lines of future work. Since what we are using as baseline, creation of chromosomes, it is itself a factor that needs measurement since different data structures will have very different carbon footprint, we need to redesign the set of experiments trying to find a way of eliminating system overhead that does not include this phase of creation; at the same time, those baseline measurements need to be lightweight enough so that the actual functions we are interested in take at least as much time, and consume as much energy than the baseline itself, or, hopefully, more. We have had such effective measurements only in the cases of the functions that consume more energy like {\sf katsuura} or {\sf rastrigin}.
+
+Finally, developing a methodology for measuring is interesting, but the objective we have ahead is to find a way to effectively optimize energy consumption for floating-point fitness functions. Low-level languages offer many ways to do it, sometimes descending to even lower levels using intrinsics \cite{latkin2014twofolds} or even low-precision representations \cite{tagliavini2017transprecision} in a context where they can actually have an impact reducing the amount of energy consumed.
+
+\section*{Acknowledgements and data availability}
+
+This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
+Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22. We are also very grateful to the {\sf zig} community. Source and data available from \url{https://github.com/JJ/energy-bbob} under a GPL license.
+
+\bibliographystyle{splncs04}
+
+\bibliography{energy,ga-energy,ours,GAs,cplusplus-energy}
+
+
+\end{document}
