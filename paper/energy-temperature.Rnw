@@ -33,22 +33,18 @@ Department of Graduate Studies, National Technological Institute of Mexico, Tiju
 %
 \begin{abstract}
 The main issue with the measurement of energy consumption of any kind of algorithm is establishing a methodology that allows an actionable comparison between different implementations in systems that actively implement their own energy-optimization strategies. In this poster we will try to observe the effects of these strategies in energy-measurement experiments by looking at how the sequence or moment in which a specific measurement is taken affects the results. We will then propose statistics summaries that might be more actionable than a simple average.
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+\keywords{Green computing  \and Energy-aware software engineering \and Evolutionary computation.}
 \end{abstract}
 %
 %
 %
-\section{Introduction}
+Unlike performance evaluation, creating greener software implies developing a methodology for measuring energy consumption along any other measure that tries to optimize it. A set of guidelines have been proposed, but still almost every paper concerned with this topic includes a section that proposes an {\em ad hoc} methodology specific to its workload; for instance, papers trying to minimize energy consumption in evolutionary algorithms by identifying key functions and measuring its consumption include a specific tool and a methodology that tries to isolate the energy consumed by just those functions.
 
-Unlike performance evaluation, creating greener software implies developing a methodology for measuring energy consumption along any other measure that tries to optimize it. A set of guidelines have been proposed \cite{ardito2019}, but still almost every paper concerned with this topic includes a section that proposes an {\em ad hoc} methodology specific to its workload; for instance, papers trying to minimize energy consumption in evolutionary algorithms by identifying key functions and measuring its consumption \cite{lion24} include a specific tool and a methodology that tries to isolate the energy consumed by just those functions.
-
-But in this and any other issue, the problem is that the system under measure is being actively optimized at different levels, from the hardware to the operating system, and this is happening at different time scales that depend on the workload and other external factors \cite{multicoreCPUs}. These measures will include frequency scaling as well as disconnection of unused core parts. This has been observed, for instance, in \cite{cotta25}, where the author show how the temperature of the CPU increases as the experiments proceed, with higher energy consumption, and propose a {\em cooling} period between experiments so that energy is optimized by staying longer in a low-temperature low-consumption regime.
+But in this and any other issue, the problem is that the system under measure is being actively optimized at different levels, from the hardware to the operating system, and this is happening at different time scales that depend on the workload and other external factors. These measures will include frequency scaling as well as disconnection of unused core parts. This has been observed, for instance, in \cite{cotta25}, where the author show how the temperature of the CPU increases as the experiments proceed, with higher energy consumption, and propose a {\em cooling} period between experiments so that energy is optimized by staying longer in a low-temperature low-consumption regime.
 
 The time scale of those experiments is a whole algorithm however; in our methodology, presented in \cite{merelo25}, we deal with single floating point functions, with single-experiment runs on a scale that goes from hundreds of milliseconds to tens of seconds. For every combination of parameters, we had observer a high variability in energy observed that can go up to 10\% or even more; variability is not the same for every kind of measurement, so it cannot simply be attributed to noise or low precision.
 
 In this paper we will revisit the data collected in those experiments looking at the effect of active system optimization measures and how they affect the measures collected. We will check if temperature-related effects are observed or evidence of other path or time-related effects. Finally, in view of the evidence, we will propose different ways of comparing different parametrizations to decide on which one is more energy efficient, since central measures, due to the afore mentioned effects, might not be the best way to perform those comparisons.
-
-\section{Methodology, experiments and results}
 
 <<europar25.variables, echo=FALSE, message=F>>=
 bbob.fixed <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
@@ -93,7 +89,7 @@ bbob.variable <- bbob.variable %>%
 
 The general methodology is extensively described in \cite{merelo25}, whose data is freely available and we will be using here. In that paper we measured several black box optimizations functions \cite{hansen2010comparing} used extensively in evolutionary algorithms. Experiments were run for different combinations of problem (chromosome) size (128, 256, 512), type of variable (double or float) and data structure (fixed or variable size). In this work, we are not so much interested in opting for a specific combination of independent variables (type of variable and data structure), but on how different energy consumption levels and time needed for each experiment affects the measures. This is why we will pick three specific functions here: one with the highest consumption ({\sf katsuura}), another with an intermediate level {\sf schaffers} and finally one with the lowest level ({\sf bent\_cigar}).
 
-<<europar25.pkg, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="PKG energy consumed vs. accumulated time; colors represent variable type and shape the chromosome size; variable-size data structures on top and fixed-size structures on bottom, with experiments for size=128 only">>=
+<<europar25.pkg, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="PKG energy consumed vs. accumulated time; colors represent variable type and shape the chromosome size; variable-size (top) and fixed-size data structures (bottom).">>=
 bbob.variable$size <- as.factor(bbob.variable$size)
 library(ggplot2)
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=PKG,shape=size)) +
@@ -130,7 +126,6 @@ As Figure \ref{fig:europar25.pkg} shows, there are clear differences in behavior
 Energy consumption is correlated to time, as the graphs show; power, on the other hand, is not, so let us visualize power consumed by the same functions along time.
 
 <<europar25.power, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="Power drawn vs. accumulated time; legend as above">>=
-
 
 bbob.variable <- bbob.variable %>%
   group_by(type, size, work) %>%
@@ -182,7 +177,16 @@ ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, 
 
 The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size. But we have drawn a segment to visualize the 75\% percentile as a summary of the energy consumption for every combination of parameters. Since it oscillates, sometimes wildly, this will give you a more accurate picture of the worst value you can obtain, giving you a more actionable measure to decide about what combinations should be best, specifically and across all parameter values. In this case, it does not show an absolute victory of vlue (floating-point values) over red (doubles), or even a clear increment in the power consumed depending on the size of the problem. Comparing the top to the bottom row, however, we can explain results in \cite{merelo25} showing that at least part of the difference in energy consumption is due to the power used by the two different data structures, which is slightly higher for the variable-size one.
 
-\section{Conclusion}
+<<europar25.time, echo=FALSE, message=F, fig.height=2.75, fig.cap="Power drawn vs. time for every experiment">>=
+ggplot(bbob.variable[bbob.variable$work =="different_powers" | bbob.variable$work =="bent_cigar" | bbob.variable$work == "rosenbrock" | bbob.variable$work=="rastrigin",], aes(x=seconds,y=watts, shape=type,color=size)) +
+  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+  labs( y="Watts", x="Seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10()
+@
+
+To try and explain the differences in power consumed, we plot number of watts consumed vs. time, shown in Figure \ref{fig:europar25.time}. One of the procedures the system uses to reduce consumption is to lower CPU frequency, which will result in less power drawn and lower performance. We have chosen several functions with a low energy consumption. We can observe how, effectively, the power drawn decreases with the time taken in every experiment, although the effect seems to disappear as the time taken increases; there is still considerable variation for the different runs, but time is substantially the same, implying that that mechanism might work only for shorter runs, or at least its effect is noted only for those kind of runs.
+
+We can conclude that we observe path-dependent effects when measuring energy consumption, only those effects can be explained, at least in part, by the system trying to optimize it and not so much by an increment in temperature. These oscillations are inherent at the measurement, so we have proposed 75\% percentile to compare different combinations, either for power or energy consumption, so that the inherent variability of those measurements can be better taken into account.
 
 
 \section*{Credits}
