@@ -54,12 +54,31 @@ ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=type, group=type)) + geom_line() +
+ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=type, color=type, group=type)) + geom_line() +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
+ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=type, group=type,color=type)) + geom_line() +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=type, color=type, group=type)) + geom_line() +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(bbob.fixed[ bbob.fixed$work == "sharp_ridge",], aes(x=cumulative_seconds, y=PKG,shape=type, group=type,color=type)) + geom_line() +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(bbob.fixed[ bbob.fixed$work == "sharp_ridge",], aes(x=cumulative_seconds, y=watts,shape=type, color=type, group=type)) + geom_line() +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Variable size
 bbob.variable <- read.csv("data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
@@ -69,6 +88,16 @@ bbob.variable <- bbob.variable %>%
   group_by(type, size, work) %>%
   mutate(order = row_number()) %>%
   ungroup()
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(cumulative_seconds = cumsum(seconds)) %>%
+  ungroup()
+
+ggplot(bbob.variable, aes(x=cumulative_seconds, y=PKG,shape=type)) +
+  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+  labs(title="PKG consumed depending on cumulative seconds", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggplot(bbob.variable, aes(x=order, y=PKG,shape=type)) +
   geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
