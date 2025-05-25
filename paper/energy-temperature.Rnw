@@ -105,9 +105,9 @@ ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seco
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Schaffer's", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
 
-ggplot(bbob.variable[ bbob.variable$work == "sharp_ridge",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
+ggplot(bbob.variable[ bbob.variable$work == "bent_cigar",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Sharp ridge", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Bent cigar", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
 
 bbob.fixed$size <- as.factor(bbob.fixed$size)
 
@@ -120,9 +120,9 @@ ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Schaffer's", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
 
-ggplot(bbob.fixed[ bbob.fixed$work == "sharp_ridge",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
+ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Sharp ridge", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="ent cigar", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
 @
 
 
