@@ -130,38 +130,57 @@ As Figure \ref{fig:europar25.pkg} shows, there are clear differences in behavior
 Energy consumption is correlated to time, as the graphs show; power, on the other hand, is not, so let us visualize power consumed by the same functions along time.
 
 <<europar25.power, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="Power drawn vs. accumulated time; legend as above">>=
-bbob.variable$size <- as.factor(bbob.variable$size)
+
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(watts_75 = quantile(watts, 0.75)) %>%
+  ungroup()
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(PKG_75 = quantile(PKG, 0.75)) %>%
+  ungroup()
+
 library(ggplot2)
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none") + geom_segment(data=bbob.variable[bbob.variable$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 
 ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.variable[bbob.variable$work == "schaffers",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 ggplot(bbob.variable[ bbob.variable$work == "bent_cigar",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.variable[bbob.variable$work == "bent_cigar",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
-bbob.fixed$size <- as.factor(bbob.fixed$size)
+bbob.fixed <- bbob.fixed %>%
+  group_by(type, size, work) %>%
+  mutate(watts_75 = quantile(watts, 0.75)) %>%
+  ungroup()
+
+bbob.fixed <- bbob.fixed %>%
+  group_by(type, size, work) %>%
+  mutate(PKG_75 = quantile(PKG, 0.75)) %>%
+  ungroup()
 
 ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 
 ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "schaffers",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "bent_cigar",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 @
 
-The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size.
+The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size. But we have drawn a segment to visualize the 75\% percentile
 
 \subsection{Conclusion}
 
