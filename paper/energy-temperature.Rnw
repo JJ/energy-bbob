@@ -97,6 +97,8 @@ The general methodology is extensively described in \cite{merelo25}, whose data 
 
 
 \begin{credits}
+This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
+Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22.
 \end{credits}
 
 \bibliographystyle{splncs04}
