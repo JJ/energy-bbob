@@ -50,6 +50,49 @@ In this paper we will revisit the data collected in those experiments looking at
 
 \section{Methodology, experiments and results}
 
+<<europar25.variables, echo=FALSE, message=F>>=
+bbob.fixed <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+
+bbob.fixed$watts <- bbob.fixed$PKG / bbob.fixed$seconds
+
+library(dplyr)
+bbob.fixed <- bbob.fixed %>%
+  group_by(type, size, work) %>%
+  mutate(order = row_number()) %>%
+  ungroup()
+
+# Per type, size, work make a cumulative sum of the seconds passed and put it in a third column
+bbob.fixed <- bbob.fixed %>%
+  group_by(type, size, work) %>%
+  mutate(cumulative_seconds = cumsum(seconds)) %>%
+  ungroup()
+
+bbob.variable <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+bbob.variable$watts <- bbob.variable$PKG / bbob.variable$seconds
+bbob.variable$size <- as.factor(bbob.variable$size)
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(order = row_number()) %>%
+  ungroup()
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(cumulative_seconds = cumsum(seconds)) %>%
+  ungroup()
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(watts_75 = quantile(watts, 0.75)) %>%
+  ungroup()
+
+bbob.variable <- bbob.variable %>%
+  group_by(type, size, work) %>%
+  mutate(PKG_75 = quantile(PKG, 0.75)) %>%
+  ungroup()
+@
+
+The general methodology is extensively described in \cite{merelo25}, whose data is freely available and we will be using here. In that paper we measured several black box optimizations functions \cite{hansen2010comparing} used extensively in evolutionary algorithms
+
 \subsection{Conclusion}
 
 
@@ -57,6 +100,6 @@ In this paper we will revisit the data collected in those experiments looking at
 \end{credits}
 
 \bibliographystyle{splncs04}
-\bibliography{energy,ours}
+\bibliography{energy,ours,GAs}
 
 \end{document}

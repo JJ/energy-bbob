@@ -252,7 +252,7 @@ Finally, developing a methodology for measuring is interesting, but the objectiv
 \section*{Acknowledgements and data availability}
 
 This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
-Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22. We are also very grateful to the {\sf zig} community. Source and data available from \url{https://github.com/JJ/energy-bbob} under a GPL license.
+Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22. Source and data available from \url{https://github.com/JJ/energy-bbob} under a GPL license.
 
 \bibliographystyle{splncs04}
 
