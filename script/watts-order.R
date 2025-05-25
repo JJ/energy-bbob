@@ -8,6 +8,12 @@ bbob.fixed <- bbob.fixed %>%
   mutate(order = row_number()) %>%
   ungroup()
 
+# Per type, size, work make a cumulative sum of the seconds passed and put it in a third column
+bbob.fixed <- bbob.fixed %>%
+  group_by(type, size, work) %>%
+  mutate(cumulative_seconds = cumsum(seconds)) %>%
+  ungroup()
+
 library(ggplot2)
 
 ggplot(bbob.fixed, aes(x=seq_along(watts), y=watts)) +
@@ -37,6 +43,25 @@ ggplot(bbob.fixed[bbob.fixed$work == "rosenbrock", ], aes(x=order, y=PKG,shape=t
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
+ggplot(bbob.fixed, aes(x=cumulative_seconds, y=PKG,shape=type)) +
+  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=PKG,shape=type)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=type, group=type)) + geom_line() +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# Variable size
 bbob.variable <- read.csv("data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
 bbob.variable$watts <- bbob.variable$PKG / bbob.variable$seconds
 bbob.variable$size <- as.factor(bbob.variable$size)
