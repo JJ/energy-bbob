@@ -91,9 +91,9 @@ bbob.variable <- bbob.variable %>%
   ungroup()
 @
 
-The general methodology is extensively described in \cite{merelo25}, whose data is freely available and we will be using here. In that paper we measured several black box optimizations functions \cite{hansen2010comparing} used extensively in evolutionary algorithms. Experiments were run for different combinations of problem (chromosome) size (128, 256, 512), type of variable (double or float) and data structure (fixed or variable size). In this work, we are not so much interested in opting for a specific combination of independent variables (type of variable and data structure), but on how different energy consumption levels and time needed for each experiment affects the measures. This is why we will pick three specific functions here: one with the highest consumption ({\sf katsuura}), another with an intermediate level {\sf schaffers} and finally one with the lowest level ({\sf sharp\_ridge}).
+The general methodology is extensively described in \cite{merelo25}, whose data is freely available and we will be using here. In that paper we measured several black box optimizations functions \cite{hansen2010comparing} used extensively in evolutionary algorithms. Experiments were run for different combinations of problem (chromosome) size (128, 256, 512), type of variable (double or float) and data structure (fixed or variable size). In this work, we are not so much interested in opting for a specific combination of independent variables (type of variable and data structure), but on how different energy consumption levels and time needed for each experiment affects the measures. This is why we will pick three specific functions here: one with the highest consumption ({\sf katsuura}), another with an intermediate level {\sf schaffers} and finally one with the lowest level ({\sf bent\_cigar}).
 
-<<europar25.pkg.var, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="PKG energy consumed vs. accumulated time; colors represent variable type and shape the chromosome size; variable-size data structures on top and fixed-size structures on bottom, with experiments for size=128 only">>=
+<<europar25.pkg, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="PKG energy consumed vs. accumulated time; colors represent variable type and shape the chromosome size; variable-size data structures on top and fixed-size structures on bottom, with experiments for size=128 only">>=
 bbob.variable$size <- as.factor(bbob.variable$size)
 library(ggplot2)
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=PKG,shape=size)) +
@@ -122,9 +122,46 @@ ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y
 
 ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="ent cigar", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
+  labs(title="Bent cigar", y="PKG", x="Cumulative seconds")+theme(legend.position="none")
 @
 
+As Figure \ref{fig:europar25.pkg} shows, there are clear differences in behavior for functions that consume energy at different scales; but a certain kind of periodicity can be observed, mainly in the combinations that consume the most energy: energy consumption goes up and down, with no evidence of an increment in temperature that would make it always go up, or a systematic system optimization that would make it go down or converge to a value. In some cases, notably the lightest function {\sf bent\_cigar}, there are some leaps that increase consumption fourfold.
+
+Energy consumption is correlated to time, as the graphs show; power, on the other hand, is not, so let us visualize power consumed by the same functions along time.
+
+<<europar25.power, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="Power drawn vs. accumulated time; legend as above">>=
+bbob.variable$size <- as.factor(bbob.variable$size)
+library(ggplot2)
+ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+
+
+ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+
+ggplot(bbob.variable[ bbob.variable$work == "bent_cigar",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+
+bbob.fixed$size <- as.factor(bbob.fixed$size)
+
+ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+
+
+ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Schaffer's", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+
+ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
+  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")
+@
+
+The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size.
 
 \subsection{Conclusion}
 
