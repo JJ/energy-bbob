@@ -40,6 +40,14 @@ The main issue with the measurement of energy consumption of any kind of algorit
 %
 \section{Introduction}
 
+Unlike performance evaluation, creating greener software implies developing a methodology for measuring energy consumption along any other measure that tries to optimize it. A set of guidelines have been proposed \cite{ardito2019}, but still almost every paper concerned with this topic includes a section that proposes an {\em ad hoc} methodology specific to its workload; for instance, papers trying to minimize energy consumption in evolutionary algorithms by identifying key functions and measuring its consumption \cite{lion24} include a specific tool and a methodology that tries to isolate the energy consumed by just those functions.
+
+But in this and any other issue, the problem is that the system under measure is being actively optimized at different levels, from the hardware to the operating system, and this is happening at different time scales that depend on the workload and other external factors \cite{multicoreCPUs}. These measures will include frequency scaling as well as disconnection of unused core parts. This has been observed, for instance, in \cite{cotta25}, where the author show how the temperature of the CPU increases as the experiments proceed, with higher energy consumption, and propose a {\em cooling} period between experiments so that energy is optimized by staying longer in a low-temperature low-consumption regime.
+
+The time scale of those experiments is a whole algorithm however; in our methodology, presented in \cite{merelo25}, we deal with single floating point functions, with single-experiment runs on a scale that goes from hundreds of milliseconds to tens of seconds. For every combination of parameters, we had observer a high variability in energy observed that can go up to 10\% or even more; variability is not the same for every kind of measurement, so it cannot simply be attributed to noise or low precision.
+
+In this paper we will revisit the data collected in those experiments looking at the effect of active system optimization measures and how they affect the measures collected. We will check if temperature-related effects are observed or evidence of other path or time-related effects. Finally, in view of the evidence, we will propose different ways of comparing different parametrizations to decide on which one is more energy efficient, since central measures, due to the afore mentioned effects, might not be the best way to perform those comparisons.
+
 \section{Methodology, experiments and results}
 
 \subsection{Conclusion}
