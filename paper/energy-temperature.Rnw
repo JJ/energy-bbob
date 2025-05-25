@@ -180,11 +180,12 @@ ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, 
   labs(title="Bent cigar", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "bent_cigar",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 @
 
-The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size. But we have drawn a segment to visualize the 75\% percentile
+The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size. But we have drawn a segment to visualize the 75\% percentile as a summary of the energy consumption for every combination of parameters. Since it oscillates, sometimes wildly, this will give you a more accurate picture of the worst value you can obtain, giving you a more actionable measure to decide about what combinations should be best, specifically and across all parameter values. In this case, it does not show an absolute victory of vlue (floating-point values) over red (doubles), or even a clear increment in the power consumed depending on the size of the problem. Comparing the top to the bottom row, however, we can explain results in \cite{merelo25} showing that at least part of the difference in energy consumption is due to the power used by the two different data structures, which is slightly higher for the variable-size one.
 
-\subsection{Conclusion}
+\section{Conclusion}
 
 
+\section*{Credits}
 \begin{credits}
 This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
 Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22.
