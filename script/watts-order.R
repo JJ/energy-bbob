@@ -110,6 +110,11 @@ ggplot(bbob.variable, aes(x=cumulative_seconds, y=PKG,shape=type)) +
   labs(title="PKG consumed depending on cumulative seconds", y="PKG", x="Cumulative seconds") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+ggplot(bbob.variable, aes(x=seconds,y=watts, shape=type,color=size)) +
+  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+  labs(title="Watts consumed depending on seconds", y="Watts", x="Seconds") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10()
+
 # Add segments with the 75 percentile of PKG consumed per size and type. Use the same color as the type and type of line to represent size
 
 bbob.variable$size <- as.factor(bbob.variable$size)
