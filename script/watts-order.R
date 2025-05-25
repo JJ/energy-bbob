@@ -121,29 +121,30 @@ ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_secon
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size, color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="Watts", x="Cumulative seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ geom_segment(data=bbob.variable[bbob.variable$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 
 ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + geom_segment(data=bbob.variable[bbob.variable$work == "schaffers",],aes(x=0, xend=max(cumulative_seconds), y=PKG_75, color=type,linetype=size))
 
 ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, color=type, group=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="Watts", x="Cumulative seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ geom_segment(data=bbob.variable[bbob.variable$work == "schaffers",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
+
 
 ggplot(bbob.variable[ bbob.variable$work == "sharp_ridge",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="PKG", x="Cumulative seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ geom_segment(data=bbob.variable[bbob.variable$work == "sharp_ridge",],aes(x=0, xend=max(cumulative_seconds), y=PKG_75, color=type,linetype=size))
 
-# plot a segment with the 75 percentile of watts consumed per size and type. Use the same color as the type and type of line to represent size
+
 ggplot(bbob.variable[ bbob.variable$work == "sharp_ridge",], aes(x=cumulative_seconds, y=watts,shape=size, color=type, group=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Watts consumed in every experiment evaluating 40K chromosomes with 128, 256, 512 dimensions, using float or double for every one of them. Please note the $y$ axes have different scales", y="Watts", x="Cumulative seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + geom_segment(data=bbob.variable[bbob.variable$work == "sharp_ridge",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))
 
 
 ggplot(bbob.variable, aes(x=order, y=PKG,shape=type)) +
