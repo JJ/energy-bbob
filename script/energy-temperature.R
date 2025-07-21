@@ -1,5 +1,5 @@
 ## ----europar25.variables, echo=FALSE, message=F--------------------------------------------------------------------------------------------------
-bbob.fixed <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+bbob.fixed <- read.csv("data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
 
 bbob.fixed$watts <- bbob.fixed$PKG / bbob.fixed$seconds
 
@@ -15,7 +15,7 @@ bbob.fixed <- bbob.fixed %>%
   mutate(cumulative_seconds = cumsum(seconds)) %>%
   ungroup()
 
-bbob.variable <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+bbob.variable <- read.csv("data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
 bbob.variable$watts <- bbob.variable$PKG / bbob.variable$seconds
 bbob.variable$size <- as.factor(bbob.variable$size)
 bbob.variable <- bbob.variable %>%
