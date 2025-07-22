@@ -39,9 +39,16 @@ bbob.variable <- bbob.variable %>%
 
 bbob.variable$size <- as.factor(bbob.variable$size)
 library(ggplot2)
+# Increase point and font size and make background white
+#
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=PKG,shape=size)) +
-  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="PKG", x="Cumulative seconds")+theme(legend.position="none")+theme_minimal()
+  geom_point( aes(color=type, size=2)) + scale_color_brewer(palette="Set1") +
+  labs(title="Katsuura, variable size DS; red = double, blue= float", y="PKG", x="Cumulative seconds") +theme_minimal()+
+  theme(plot.background = element_rect(fill = 'white', colour = 'red'),
+        legend.position="none",
+        axis.text=element_text(size=16),
+        axis.title=element_text(size=24, face="bold"))
+
 ggsave("img/bbob-katsuura-variable.png", width=16, height=8, dpi=300)
 
 ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
@@ -57,8 +64,13 @@ ggsave("img/bbob-bent-cigar-variable.png", width=16, height=8, dpi=300)
 bbob.fixed$size <- as.factor(bbob.fixed$size)
 
 ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=PKG,shape=size)) +
-  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="PKG", x="Cumulative seconds")+theme(legend.position="none")+theme_minimal()
+  geom_point( aes(color=type, size=2)) + scale_color_brewer(palette="Set1") +
+  labs(title="Katsuura, fixed size DS; red = double, blue= float", y="PKG", x="Cumulative seconds")+theme_minimal()+
+  theme(plot.background = element_rect(fill = 'white', colour = 'red'),
+        legend.position="none",
+        axis.text=element_text(size=16),
+        axis.title=element_text(size=24, face="bold"))
+
 ggsave("img/bbob-katsuura-fixed.png", width=16, height=8, dpi=300)
 
 ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
