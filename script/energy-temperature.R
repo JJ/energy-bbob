@@ -51,7 +51,7 @@ ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_secon
 
 ggsave("img/bbob-katsuura-variable.png", width=16, height=8, dpi=300)
 
-ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
+# ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=PKG,shape=size, group=type,color=type)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
   labs(title="Schaffer's", y="PKG", x="Cumulative seconds")+theme(legend.position="none")+theme_minimal()
 ggsave("img/bbob-schaffers-variable.png", width=16, height=8, dpi=300)
@@ -94,8 +94,13 @@ bbob.variable <- bbob.variable %>%
   ungroup()
 
 ggplot(bbob.variable[ bbob.variable$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
-  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none") + geom_segment(data=bbob.variable[bbob.variable$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))+theme_minimal()
+  geom_point( aes(color=type,size=2)) + scale_color_brewer(palette="Set1") +
+  labs(title="Katsuura variable-size DS, power, lines at percentile 75", y="Power (watts)", x="Cumulative seconds") + geom_segment(data=bbob.variable[bbob.variable$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))+theme_minimal()+
+  theme(plot.background = element_rect(fill = 'white', colour = 'red'),
+        legend.position="none",
+        axis.text=element_text(size=16),
+        axis.title=element_text(size=24, face="bold"))
+
 ggsave("img/bbob-katsuura-variable-watts.png", width=16, height=8, dpi=300)
 
 ggplot(bbob.variable[ bbob.variable$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
@@ -120,7 +125,11 @@ bbob.fixed <- bbob.fixed %>%
 
 ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
   geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
-  labs(title="Katsuura", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))+ theme_minimal()
+  labs(title="Katsuura, fixed size DS", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))+ theme_minimal()+
+  theme(plot.background = element_rect(fill = 'white', colour = 'red'),
+        legend.position="none",
+        axis.text=element_text(size=16),
+        axis.title=element_text(size=24, face="bold"))
 ggsave("img/bbob-katsuura-fixed-watts.png", width=16, height=8, dpi=300)
 
 ggplot(bbob.fixed[ bbob.fixed$work == "schaffers",], aes(x=cumulative_seconds, y=watts,shape=size, group=type,color=type)) +
