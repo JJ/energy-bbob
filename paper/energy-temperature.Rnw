@@ -174,11 +174,18 @@ ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, 
 
 The picture drawn in Figure \ref{fig:europar25.power} is quite different; for starters, power seems to cluster around 60 watts independently of the function and other parameters for the variable-size data, 56 for fixed size. But we have drawn a segment to visualize the 75\% percentile as a summary of the energy consumption for every combination of parameters. Since it oscillates, sometimes wildly, this will give you a more accurate picture of the worst value you can obtain, giving you a more actionable measure to decide about what combinations should be best, specifically and across all parameter values. In this case, it does not show an absolute victory of value (floating-point values) over red (doubles), or even a clear increment in the power consumed depending on the size of the problem. Comparing the top to the bottom row, however, we can explain results in \cite{merelo25} showing that at least part of the difference in energy consumption is due to the power used by the two different data structures, which is slightly higher for the variable-size one.
 
-<<europar25.time, echo=FALSE, message=F, fig.height=2.75, fig.cap="Power drawn vs. time for every experiment">>=
-ggplot(bbob.variable[bbob.variable$work =="different_powers" | bbob.variable$work =="bent_cigar" | bbob.variable$work == "rosenbrock" | bbob.variable$work=="rastrigin",], aes(x=seconds,y=watts, shape=type,color=size)) +
-  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+<<europar25.time, echo=FALSE, warning=F, message=F, fig.height=2.75, fig.cap="Power drawn vs. time for every variable size experiment">>=
+# map the size factors 128, 256, 512 to a point size of 1, 2, 3
+bbob.variable$point.size <- factor(bbob.variable$size, levels = c("128", "256", "512"), labels = c(1, 2, 3))
+
+
+ggplot(bbob.variable[bbob.variable$work =="different_powers" | bbob.variable$work =="bent_cigar" | bbob.variable$work == "rosenbrock" | bbob.variable$work=="rastrigin",], aes(x=seconds,y=watts, shape=type,color=work)) +
+  geom_point( aes(color=work,size=point.size)) + scale_color_brewer(palette="Set1") +
+  scale_size_discrete(name="Chromosome size",labels=c("128", "256", "512")) +
+  scale_shape_discrete(name="Variable type",labels=c("Float", "Double")) +
+  scale_color_discrete(name="Function",labels=c("Different powers", "Bent cigar", "Rosenbrock", "Rastrigin")) +
   labs( y="Watts", x="Seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10() + theme_minimal()
 @
 
 To try and explain the differences in power consumed, we plot the number of watts consumed vs. time, shown in Figure \ref{fig:europar25.time}. One of the procedures the system uses to reduce consumption is to lower CPU frequency, which will result in less power drawn and lower performance. We have chosen several functions that have low energy consumption. We can observe how, effectively, the power drawn decreases with the time taken in every experiment, although the effect seems to disappear as the time taken increases; there is still considerable variation for the different runs, but time is substantially the same, implying that that mechanism might work only for shorter runs, or at least its effect is noted only for those kind of runs.
