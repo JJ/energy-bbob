@@ -124,7 +124,7 @@ bbob.fixed <- bbob.fixed %>%
   ungroup()
 
 ggplot(bbob.fixed[ bbob.fixed$work == "katsuura",], aes(x=cumulative_seconds, y=watts,shape=size)) +
-  geom_point( aes(color=type)) + scale_color_brewer(palette="Set1") +
+  geom_point( aes(color=type, size=2)) + scale_color_brewer(palette="Set1") +
   labs(title="Katsuura, fixed size DS", y="Power (watts)", x="Cumulative seconds")+theme(legend.position="none")+ geom_segment(data=bbob.fixed[bbob.fixed$work == "katsuura",],aes(x=0, xend=max(cumulative_seconds), y=watts_75, color=type,linetype=size))+ theme_minimal()+
   theme(plot.background = element_rect(fill = 'white', colour = 'red'),
         legend.position="none",
@@ -143,7 +143,11 @@ ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, 
 ggsave("img/bbob-bent-cigar-fixed-watts.png", width=16, height=8, dpi=300)
 
 ggplot(bbob.variable[bbob.variable$work =="different_powers" | bbob.variable$work =="bent_cigar" | bbob.variable$work == "rosenbrock" | bbob.variable$work=="rastrigin",], aes(x=seconds,y=watts, shape=type,color=size)) +
-  geom_point( aes(color=work)) + scale_color_brewer(palette="Set1") +
+  geom_point( aes(color=work,size=2)) + scale_color_brewer(palette="Set1") +
   labs( y="Watts", x="Seconds") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10()+theme_minimal()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+scale_x_log10()+theme_minimal()+
+  theme(plot.background = element_rect(fill = 'white', colour = 'red'),
+        legend.position="none",
+        axis.text=element_text(size=16),
+        axis.title=element_text(size=24, face="bold"))
 ggsave("img/bbob-variable-watts.png", width=8, height=4, dpi=300)
