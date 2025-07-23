@@ -14,6 +14,7 @@
 \begin{document}
 %
 \title{Time-related effects in the measurement of energy consumption in evolutionary algorithms}
+\titlerunning{Time-related effects in EA energy profiling}
 
 \author{
  Juan J. Merelo-Guervós\inst{1}\orcidID{0000-0002-1385-9741} \and Gustavo Romero López\inst{1}\orcidID{0000-0002-5498-7512} \and Mario García-Valdez\inst{2}\orcidID{0000-0002-2593-1114}
