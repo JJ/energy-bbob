@@ -194,10 +194,8 @@ We can conclude that we observe path-dependent effects when measuring energy con
 
 
 \section*{Credits}
-\begin{credits}
 This work is supported by the Ministerio espa\~{n}ol de Econom\'{\i}a y
-Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C22.
-\end{credits}
+Competitividad (Spanish Ministry of Competitivity and Economy) under project PID2023-147409NB-C21.
 
 \bibliographystyle{splncs04}
 \bibliography{energy,ours,GAs}
