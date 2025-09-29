@@ -119,7 +119,6 @@ ggplot(bbob.fixed[ bbob.fixed$work == "bent_cigar",], aes(x=cumulative_seconds, 
 @
 
 As Figure \ref{fig:europar25.pkg} shows, there are apparent differences in behavior for functions that consume energy at different scales; but a certain kind of periodicity can be observed, mainly in the combinations that consume the most energy: energy consumption goes up and down, with no evidence of an increment in temperature that would make it always go up, or a systematic system optimization that would make it go down or converge to a value. In some cases, notably the lightest function {\sf bent\_cigar}, some leaps increase consumption fourfold.
-
 As the graphs show, energy consumption is correlated to time; power, on the other hand, is not, so let us visualize power consumed by the same functions over time.
 
 <<europar25.power, echo=FALSE, message=F, fig.height=4, fig.show="hold", out.width="32%", fig.cap="Power drawn vs. accumulated time; legend as above">>=
@@ -189,7 +188,6 @@ ggplot(bbob.variable[bbob.variable$work =="different_powers" | bbob.variable$wor
 @
 
 To try and explain the differences in power consumed, we plot the number of watts consumed vs. time, shown in Figure \ref{fig:europar25.time}. One of the procedures the system uses to reduce consumption is to lower CPU frequency, which will result in less power drawn and lower performance. We have chosen several functions that have low energy consumption. We can observe how, effectively, the power drawn decreases with the time taken in every experiment, although the effect seems to disappear as the time taken increases; there is still considerable variation for the different runs, but time is substantially the same, implying that that mechanism might work only for shorter runs, or at least its effect is noted only for those kind of runs.
-
 We can conclude that we observe path-dependent effects when measuring energy consumption, but they can be explained, at least in part, by the system trying to optimize it and not so much by an increment in temperature. These oscillations are inherent at the measurement, so we have proposed 75\% percentile to compare different combinations, either for power or energy consumption, so that the inherent variability of those measurements can be better considered.
 
 
