@@ -56,3 +56,5 @@ figure/
 # emacs
 *~
 
+# packages
+*.zip
