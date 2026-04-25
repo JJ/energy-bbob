@@ -1,5 +1,5 @@
 ---
-title: "Your Fitness Function May Be Burning More Energy Than You Think"
+title: "Your BBOB Fitness Function May Be Burning More Energy Than You Think"
 subtitle: "Key findings from *Measuring Energy Consumption of BBOB Fitness Functions* (EvoStar 2025)"
 author: "Juan J. Merelo-Guervós, Gustavo Romero López, Mario García-Valdez"
 date: "2025-04-25"
@@ -256,6 +256,10 @@ fixed.functions.data$data.structure <- "array (fixed)"
 functions.data$data.structure       <- "vector (variable)"
 fixed.functions.data$precision <- ifelse(trimws(fixed.functions.data$type) == "f",
                                           "float (32-bit)", "double (64-bit)")
+
+fixed.functions.data$size_label <- paste0("Size = ", fixed.functions.data$size)
+fixed.functions.data$size_label <- factor(fixed.functions.data$size_label,
+                                     levels = c("Size = 128", "Size = 256", "Size = 512"))
 
 functions.128 <- rbind(
   fixed.functions.data[fixed.functions.data$size == 128, ],
