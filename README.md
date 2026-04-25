@@ -39,7 +39,10 @@ isbn="978-3-031-90065-5"
 ```
 
 Check also out the [presentation](preso/index.html) at the conference in
-Trieste, including its relationship to Joyce, Italo Svevo and the city at large.
+Trieste, including its relationship to Joyce, Italo Svevo and the city at
+large. The state of the repository at the moment of publication is in the
+[Evostar25 released
+version](https://github.com/JJ/energy-bbob/releases/tag/v1.0Evostar).
 
 ## LICENSE
 
