@@ -1,0 +1,460 @@
+---
+title: "Your Fitness Function May Be Burning More Energy Than You Think"
+subtitle: "Key findings from *Measuring Energy Consumption of BBOB Fitness Functions* (EvoStar 2025)"
+author: "Juan J. Merelo-Guervós, Gustavo Romero López, Mario García-Valdez"
+date: "2025-04-25"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    fig_caption: true
+    df_print: paged
+bibliography: ../paper/ours.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.align = "center", out.width = "100%")
+# Install optional packages if not present
+for (.pkg in c("ggrepel", "scales", "tidyr")) {
+  if (!requireNamespace(.pkg, quietly = TRUE)) {
+    install.packages(.pkg, repos = "https://cloud.r-project.org", quiet = TRUE)
+  }
+}
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(knitr)
+library(scales)
+```
+
+---
+
+## The Hidden Cost of Evaluating Solutions
+
+Every time an evolutionary algorithm evaluates a candidate solution, it runs a
+**fitness function** — usually dozens of thousands of times per experiment, and
+thousands of experiments over a research career. We rarely stop to ask: *how
+much energy does that actually cost?*
+
+In a world where [software is responsible for a growing share of global
+electricity consumption](https://doi.org/10.1007/978-3-031-90065-5_15),
+understanding and minimising the energy footprint of our algorithms is no longer
+optional. It is part of good engineering — and good science.
+
+In our paper published at
+[EvoStar 2025](https://link.springer.com/chapter/10.1007/978-3-031-90065-5_15),
+we asked a deceptively simple question:
+
+> **Among the standard BBOB floating-point fitness functions, how much energy
+> does each one consume — and do the representation choices we make (precision,
+> data structure) actually matter?**
+
+The answers were surprising.
+
+---
+
+## How We Measured It
+
+We used [**pinpoint**](https://github.com/osmhpi/pinpoint), a multiplatform
+tool that hooks into the CPU's built-in power sensors (Intel/AMD RAPL) and
+reports the total energy consumed by the *package* — CPU cores plus memory —
+during a process run. This is a hardware-level measurement, not a simulation.
+
+The measurement procedure:
+
+1. **Baseline**: generate 40 000 random floating-point chromosomes and record
+   the energy (`PKG`, in Joules) consumed. This represents the unavoidable
+   overhead of just *having* a population.
+2. **Function evaluation**: apply each BBOB fitness function to the same 40 000
+   chromosomes and record energy again.
+3. **Delta**: subtract the baseline mean to isolate the energy cost of the
+   function itself (`ΔE = PKG_function − mean(PKG_baseline)`).
+
+We repeated every configuration **30 times** on a dedicated AMD Ryzen 9 3950X
+machine (Ubuntu 20.04, g++ 10.5, `-O3 -march=native -flto`), varying:
+
+- **Precision**: `float` (32-bit) vs `double` (64-bit)
+- **Chromosome size**: 128, 256 and 512 dimensions
+- **Data structure**: variable-size `std::vector` vs fixed-size `std::array`
+
+Ten BBOB functions were chosen to span all structural categories: `sphere`,
+`rastrigin`, `rosenbrock`, `discus`, `bent_cigar`, `different_powers`,
+`sharp_ridge`, `schaffers`, `schwefel`, and `katsuura`.
+
+---
+
+## Finding 1: The Energy Landscape Spans Orders of Magnitude
+
+```{r load-data}
+# Load and prepare baseline data
+base.variable.data <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
+base.variable.data$size <- as.factor(base.variable.data$size)
+base.variable.data$type <- as.factor(base.variable.data$type)
+base.variable.data %>%
+  group_by(size, type) %>%
+  summarise(mean.PKG = mean(PKG), .groups = "drop") -> summary.base.variable.data
+
+# Load and prepare function evaluation data
+functions.data <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+functions.data <- functions.data[functions.data$work != "none", ]
+functions.data$delta.PKG <- 0
+
+for (sz in c(128, 256, 512)) {
+  for (tp in c(" f", " d")) {
+    mask     <- functions.data$size == sz & functions.data$type == tp
+    baseline <- summary.base.variable.data[
+      summary.base.variable.data$size == sz &
+        summary.base.variable.data$type == tp, ]$mean.PKG
+    functions.data[mask, ]$delta.PKG <-
+      functions.data[mask, ]$PKG - rep(baseline, sum(mask))
+  }
+}
+functions.data$delta.PKG <- pmax(functions.data$delta.PKG, 0)
+
+# Clean up type labels for plotting
+functions.data$precision <- ifelse(trimws(functions.data$type) == "f", "float (32-bit)", "double (64-bit)")
+```
+
+```{r fig-all-functions, fig.cap="**Figure 1.** Median energy consumption (ΔE, Joules, log scale) of each BBOB fitness function for 40 000 evaluations, by chromosome size and floating-point precision. Functions are ranked by their median energy at size 512 with double precision. The y-axis is on a base-10 log scale — each tick is a 10× increase."}
+# Compute medians for ranking
+rank_order <- functions.data %>%
+  filter(size == 512, trimws(type) == "d") %>%
+  group_by(work) %>%
+  summarise(med = median(delta.PKG), .groups = "drop") %>%
+  arrange(med) %>%
+  pull(work)
+
+functions.data$work <- factor(functions.data$work, levels = rank_order)
+functions.data$size_label <- paste0("Size = ", functions.data$size)
+functions.data$size_label <- factor(functions.data$size_label,
+                                     levels = c("Size = 128", "Size = 256", "Size = 512"))
+
+ggplot(functions.data, aes(x = work, y = delta.PKG, colour = precision)) +
+  geom_boxplot(outlier.size = 0.8, outlier.alpha = 0.5) +
+  facet_wrap(~size_label, ncol = 1) +
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_colour_brewer(palette = "Set1", name = "Precision") +
+  labs(
+    x = "BBOB function",
+    y = "ΔE (Joules, log scale)"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 40, hjust = 1),
+    strip.background = element_rect(fill = "grey90"),
+    legend.position = "top"
+  )
+```
+
+The first thing that jumps out from Figure 1 is the **extraordinary spread in
+energy consumption**. Using a logarithmic scale is not a stylistic choice — it
+is a necessity: `katsuura` consumes roughly **one order of magnitude more
+energy** than most other functions at the same chromosome size and precision.
+
+To put that in concrete terms:
+
+```{r summary-table}
+functions.data %>%
+  group_by(work, precision, size) %>%
+  summarise(
+    median_J  = round(median(delta.PKG), 4),
+    q75_J     = round(quantile(delta.PKG, 0.75), 4),
+    .groups   = "drop"
+  ) %>%
+  filter(size == 512) %>%
+  select(-size) %>%
+  arrange(precision, median_J) %>%
+  rename(Function = work, Precision = precision,
+         `Median ΔE (J)` = median_J, `75th pctile ΔE (J)` = q75_J) %>%
+  kable(caption = "Table 1. Energy cost per batch of 40 000 evaluations at chromosome size 512.")
+```
+
+Some functions (`bent_cigar`, `discus`, `rosenbrock` at small sizes) show
+**zero measurable delta**. This is *not* a mistake — the compiler's aggressive
+optimiser folds these lightweight functions into the chromosome generation loop,
+making them energetically inseparable from the baseline. That is good news for
+users of those functions, but it also means RAPL-based measurement hits a
+precision floor of roughly 5% of total PKG consumption.
+
+---
+
+## Finding 2: Double Precision Is Not the Enemy
+
+The conventional wisdom says *"use floats to save energy"* — halving the
+byte width should halve the memory traffic and therefore the energy, right?
+
+**Not quite.**
+
+```{r fig-float-vs-double, fig.cap="**Figure 2.** Head-to-head comparison of float vs double at chromosome size 512 (variable-size vector). A position above the diagonal means double costs more; below means float costs more. Most functions cluster near the diagonal or below it."}
+comparison <- functions.data %>%
+  filter(size == 512) %>%
+  group_by(work, precision) %>%
+  summarise(median_dE = median(delta.PKG), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = precision, values_from = median_dE) %>%
+  rename(float32 = `float (32-bit)`, double64 = `double (64-bit)`)
+
+ggplot(comparison, aes(x = double64, y = float32, label = work)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(size = 3, colour = "#E41A1C") +
+  ggrepel::geom_text_repel(size = 3.5, max.overlaps = 20) +
+  scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  labs(
+    x = "double (64-bit) median ΔE (J)",
+    y = "float (32-bit) median ΔE (J)"
+  ) +
+  theme_bw(base_size = 12)
+```
+
+In Figure 2, points on the **diagonal** indicate identical energy cost for both
+precisions. Points **below** the diagonal mean `float` is *more expensive* than
+`double` — the opposite of what intuition suggests.
+
+Why? Modern compilers, when instructed with `-O3 -march=native`, generate
+vectorised 64-bit SIMD code that processes doubles very efficiently. Reducing to
+32-bit floats does not automatically unlock a cheaper code path; in many cases
+the same instructions are used, but the shorter float values have to be
+zero-extended or handled with narrower SIMD widths, negating the theoretical
+gain. The **only function where float consistently wins is `katsuura`**, where
+the sheer amount of trigonometric and power operations means fewer bits do
+translate to measurably less computation.
+
+> **Practical takeaway**: there is no blanket energy argument for switching your
+> EA from `double` to `float`. The theoretical gain rarely materialises in
+> practice, and you lose several digits of precision.
+
+---
+
+## Finding 3: Where Arrays Really Shine — and Where They Don't
+
+We also tested a fixed-size `std::array<T, 128>` against the usual
+variable-size `std::vector<T>`.
+
+```{r load-fixed-data}
+base.fixed.data <- read.csv("../data/fixed-evostar25-generation-5-Nov-07-37-13.csv")
+base.fixed.data$size  <- as.factor(base.fixed.data$size)
+base.fixed.data$type  <- as.factor(base.fixed.data$type)
+base.fixed.data %>%
+  group_by(size, type) %>%
+  summarise(mean.PKG = mean(PKG), .groups = "drop") -> summary.base.fixed.data
+
+fixed.functions.data <- read.csv("../data/evostar25-bbob-fixed-12-Nov-08-20-03.csv")
+fixed.functions.data$delta.PKG <- 0
+for (tp in c(" f", " d")) {
+  mask <- fixed.functions.data$size == 128 & fixed.functions.data$type == tp
+  baseline <- summary.base.fixed.data[
+    summary.base.fixed.data$size == 128 &
+      summary.base.fixed.data$type == tp, ]$mean.PKG
+  fixed.functions.data[mask, ]$delta.PKG <-
+    fixed.functions.data[mask, ]$PKG - rep(baseline, sum(mask))
+}
+fixed.functions.data$delta.PKG <- pmax(fixed.functions.data$delta.PKG, 0)
+fixed.functions.data$data.structure <- "array (fixed)"
+functions.data$data.structure       <- "vector (variable)"
+fixed.functions.data$precision <- ifelse(trimws(fixed.functions.data$type) == "f",
+                                          "float (32-bit)", "double (64-bit)")
+
+functions.128 <- rbind(
+  fixed.functions.data[fixed.functions.data$size == 128, ],
+  functions.data[functions.data$size == 128, ]
+)
+functions.128$work <- factor(functions.128$work, levels = rank_order)
+```
+
+```{r fig-generation-baseline, fig.cap="**Figure 3.** Energy consumed by chromosome *generation* alone (the unavoidable baseline), comparing fixed-size `array` vs variable-size `vector` at size 128. Both float and double are shown. The array baseline is roughly 8× cheaper.", fig.height=4}
+base.variable.data.128 <- read.csv("../data/evostar25-generation-5-Nov-07-30-15.csv")
+base.variable.data.128 <- base.variable.data.128[base.variable.data.128$size == 128, ]
+base.variable.data.128$data.structure <- "vector (variable)"
+base.fixed.data.plot <- read.csv("../data/fixed-evostar25-generation-5-Nov-07-37-13.csv")
+base.fixed.data.plot$data.structure  <- "array (fixed)"
+base.gen <- rbind(base.variable.data.128, base.fixed.data.plot)
+base.gen$precision <- ifelse(trimws(base.gen$type) == "f", "float", "double")
+
+ggplot(base.gen, aes(x = data.structure, y = PKG, colour = precision, fill = precision)) +
+  geom_violin(alpha = 0.3, trim = FALSE) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.5, size = 1.5) +
+  scale_colour_brewer(palette = "Set1", name = "Precision") +
+  scale_fill_brewer(palette = "Set1", name = "Precision") +
+  labs(
+    x = "Data structure",
+    y = "PKG energy (Joules)"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "top")
+```
+
+The **array baseline is approximately 8× cheaper** than the vector baseline
+(Figure 3). This is significant: every evolutionary algorithm spends time at
+initialisation creating chromosomes, and if those chromosomes are fixed-size,
+the savings at startup are real and large.
+
+However, for *function evaluation* the picture is murkier:
+
+```{r fig-array-vs-vector, fig.cap="**Figure 4.** ΔE for function evaluation at size 128, comparing array and vector data structures. Double precision shown; the results for float are analogous. For most functions the two data structures are equivalent — the `katsuura` exception aside.", fig.height=4}
+ggplot(functions.128[functions.128$precision == "double (64-bit)", ],
+       aes(x = work, y = delta.PKG, colour = data.structure)) +
+  geom_boxplot(outlier.size = 0.8, outlier.alpha = 0.4, position = "dodge") +
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_colour_manual(values = c("array (fixed)" = "#4DAF4A", "vector (variable)" = "#984EA3"),
+                      name = "Data structure") +
+  labs(
+    x = "BBOB function",
+    y = "ΔE (Joules, log scale)"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 40, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+For most functions there is **no meaningful difference** in evaluation energy
+between the two structures. The compiler emits essentially the same inner loop
+regardless of whether the data pointer comes from a `vector` or an `array`. The
+conclusion is clear:
+
+> **Use `double + vector` as your default.** It is the combination that requires
+> no compile-time size specialisation and consistently delivers the lowest or
+> tied-lowest evaluation energy across functions. Switch to `array` only if
+> your algorithm initialises large populations frequently — the 8× saving
+> at chromosome-generation time can add up over an evolutionary run.
+
+---
+
+## Going Further: Power Profile Across Functions
+
+The paper's *future work* section mentions a need to look beyond raw Joules and
+consider **average power** (watts = J/s), which characterises how
+*intensively* a function taxes the CPU rather than just how long it runs. We
+can do this directly with the existing data.
+
+```{r fig-watts-profile, fig.cap="**Figure 5.** Average power draw (watts = PKG / seconds) for each BBOB function at size 512, double precision. This reveals which functions are *computationally intense* regardless of how long they take. Functions are ordered by median power.", fig.height=4.5}
+functions.data.watts <- read.csv("../data/variable-evostar25-bbob-10-Nov-19-10-32.csv")
+functions.data.watts <- functions.data.watts[functions.data.watts$work != "none", ]
+functions.data.watts$watts <- functions.data.watts$PKG / functions.data.watts$seconds
+functions.data.watts$precision <- ifelse(trimws(functions.data.watts$type) == "f",
+                                          "float (32-bit)", "double (64-bit)")
+
+watts_order <- functions.data.watts %>%
+  filter(size == 512, trimws(type) == "d") %>%
+  group_by(work) %>%
+  summarise(med_w = median(watts), .groups = "drop") %>%
+  arrange(med_w) %>%
+  pull(work)
+
+functions.data.watts$work <- factor(functions.data.watts$work, levels = watts_order)
+
+ggplot(functions.data.watts[functions.data.watts$size == 512, ],
+       aes(x = work, y = watts, colour = precision)) +
+  geom_boxplot(outlier.size = 0.8, outlier.alpha = 0.5) +
+  scale_colour_brewer(palette = "Set1", name = "Precision") +
+  labs(
+    x = "BBOB function",
+    y = "Average power (watts)"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 40, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+Figure 5 reveals something the raw-energy view obscures: while `katsuura` still
+tops the ranking, the **relative ordering of the other functions changes**. A
+function that consumes modest total Joules but finishes quickly may draw more
+*instantaneous* watts than one that consumes more Joules over a longer run. This
+matters for thermal management and for cloud environments billed by peak power.
+
+---
+
+## Energy Scaling with Chromosome Size
+
+One more analysis the existing data allows us to perform is to see **how energy
+scales** as chromosome size grows from 128 to 256 to 512 dimensions. Theory
+predicts linear scaling for simple element-wise functions, but loop-heavy or
+transcendental functions might scale super-linearly.
+
+```{r fig-scaling, fig.cap="**Figure 6.** Median ΔE as a function of chromosome size, for each BBOB function (double precision, variable vector). Lines connect medians across sizes. Functions with near-zero measurements at size 128 are excluded from the log scale.", fig.height=5}
+scaling <- functions.data %>%
+  filter(precision == "double (64-bit)", delta.PKG > 0) %>%
+  group_by(work, size) %>%
+  summarise(med_dE = median(delta.PKG), .groups = "drop")
+
+ggplot(scaling, aes(x = size, y = med_dE, colour = work, group = work)) +
+  geom_line(size = 0.9) +
+  geom_point(size = 2.5) +
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_colour_brewer(palette = "Set3", name = "Function") +
+  labs(
+    x = "Chromosome size (dimensions)",
+    y = "Median ΔE (Joules, log scale)"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "right")
+```
+
+The scaling plot shows that **all functions grow roughly linearly** in energy
+with chromosome size on this log-log scale — that is, a doubling of size leads
+to roughly a doubling of energy. There is no evidence of any function becoming
+disproportionately expensive at larger sizes; the rank order is stable. This is
+reassuring: measurements taken at size 128 give a reliable relative picture even
+for larger problems.
+
+---
+
+## Summary: What Should You Actually Do?
+
+| Decision | Recommendation | Confidence |
+|---|---|---|
+| `float` vs `double` | Use `double` | High — float rarely saves energy and costs precision |
+| `vector` vs `array` | Use `vector` for evaluation; `array` for init-heavy workloads | High |
+| Which functions to benchmark? | Prefer `katsuura`, `rastrigin`, `schaffers` — they are measurable | High |
+| Chromosome size | Measurements at 128 dimensions generalise to larger sizes | Medium |
+| Power vs energy | Monitor both; they do not always rank functions the same way | Medium |
+
+---
+
+## Open Questions and Future Work
+
+The paper identified several open questions that remain fertile ground for
+further investigation:
+
+1. **Compiler-fused functions**: `bent_cigar`, `discus`, `rosenbrock` (at small
+   sizes) produce zero delta energy because the compiler merges them with the
+   generation loop. Techniques like `volatile` fencing or separate compilation
+   units could make these measurable.
+
+2. **Reduced precision beyond `float`**: The transprecision computing literature
+   suggests 8-bit and 16-bit floating-point formats can cut energy by up to 30%
+   in some workloads. Could BBOB functions tolerate such reduced precision? The
+   answer likely varies by function — `katsuura` with its iterated products
+   might be sensitive, while `sphere` could be fine.
+
+3. **Other BBOB functions**: 14 of the 24 BBOB functions remain unmeasured. Do
+   any of them approach `katsuura`'s extreme energy footprint?
+
+4. **Other architectures**: All results here are for an AMD Ryzen on Linux.
+   Intel, ARM and RISC-V CPUs vectorise differently, and the
+   float-vs-double story may be completely different on an M-series Apple chip.
+
+5. **Algorithm-level impact**: The paper measures function calls in isolation.
+   A full evolutionary algorithm adds selection, crossover, mutation, and
+   population management. How does function energy cost translate to total run
+   energy?
+
+---
+
+## References
+
+This post is based on:
+
+> Merelo-Guervós, J. J., Romero López, G., & García-Valdez, M. (2025).
+> *Measuring Energy Consumption of BBOB Fitness Functions.*
+> In *Applications of Evolutionary Computation* (EvoStar 2025),
+> Lecture Notes in Computer Science, vol. 15613, pp. 240–254. Springer.
+> <https://doi.org/10.1007/978-3-031-90065-5_15>
+
+Source code and data: <https://github.com/JJ/energy-bbob> (GPL licence).
