@@ -46,17 +46,16 @@ subtest 'process_pinpoint_output — multiple decimal places' => sub {
 #-------------------------------------------------------------------
 
 subtest 'mini_slurp — reads entire file contents' => sub {
-    my $tmpfile = "/tmp/test_mini_slurp_$$.txt";
+    require File::Temp;
+    my $tmpfh = File::Temp->new(UNLINK => 1, SUFFIX => '.txt');
+    my $tmpfile = $tmpfh->filename;
     my $content = "line one\nline two\nline three\n";
 
-    open my $fh, '>', $tmpfile or die "Cannot write $tmpfile: $!";
-    print $fh $content;
-    close $fh;
+    print $tmpfh $content;
+    $tmpfh->flush;
 
     my $result = mini_slurp($tmpfile);
     is($result, $content, 'mini_slurp returns complete file content');
-
-    unlink $tmpfile;
 };
 
 #-------------------------------------------------------------------

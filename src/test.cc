@@ -201,9 +201,13 @@ void test_schwefel()
 
     // penalty is 0 for |x| <= 500; verify via a known computation
     std::vector<double> single_zero = {0.0};
-    // result = 0*sin(0) = 0; return 0.01*(0 + 418.9828... - 0/1)
+    // For x={0}: penalty=0, result=0*sin(0)=0
+    // return 0.01*(penalty + SCHWEFEL_CONST - result/n)
+    // where SCHWEFEL_CONST = 418.9828872724339 ≈ 420.9687*sin(π/2)
+    // is the per-dimension offset that shifts the global minimum to ≈0.
+    const double SCHWEFEL_CONST = 418.9828872724339;
     double sw = schwefel_function<std::vector<double>>(single_zero);
-    CHECK_CLOSE(sw, 0.01 * 418.9828872724339, 1e-8);
+    CHECK_CLOSE(sw, 0.01 * SCHWEFEL_CONST, 1e-8);
 }
 
 //-------------------------------------------------------------------
