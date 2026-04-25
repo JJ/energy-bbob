@@ -42,7 +42,8 @@ Check also out the [presentation](preso/index.html) at the conference in
 Trieste, including its relationship to Joyce, Italo Svevo and the city at
 large. The state of the repository at the moment of publication is in the
 [Evostar25 released
-version](https://github.com/JJ/energy-bbob/releases/tag/v1.0Evostar).
+version](https://github.com/JJ/energy-bbob/releases/tag/v1.0Evostar) and an
+[explainer of the paper, including code](posts/evostar-2025-energy-bbob.html).
 
 ## LICENSE
 
