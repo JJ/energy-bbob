@@ -14,7 +14,7 @@ LOG = $(wildcard *.log)
 NEW != echo $${HOSTNAME%%.*}-$$(date '+%s').log
 POP = 40000
 REP = 13
-SRC = $(wildcard *.cc)
+SRC = $(filter-out test.cc, $(wildcard *.cc))
 SVG = $(LOG:.log=.svg)
 TMP = $(wildcard *.tmp)
 CXXSTD = c++23
@@ -91,8 +91,15 @@ svg: $(SVG)
 
 #------------------------------------------------------------------------------
 
+test: test.cc coco.h
+	$(CXX) -std=$(CXXSTD) -O2 -Wall -o test_runner $<
+	./test_runner
+	rm -f test_runner
+
+#------------------------------------------------------------------------------
+
 .INTERMEDIATE: $(NEW) $(TMP)
-.PHONY: all clean exe new start stop svg
+.PHONY: all clean exe new start stop svg test
 .PRECIOUS: $(LOG)
 
 #------------------------------------------------------------------------------
